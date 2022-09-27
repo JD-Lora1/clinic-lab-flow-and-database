@@ -6,11 +6,15 @@ import model.Node;
 
 import com.google.gson.Gson;
 
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Scanner;
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.logging.ErrorManager;
+
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
@@ -119,7 +123,8 @@ public class Main {
     public static void powershellCommand(String os) throws IOException {
         String command0 = "powershell."+os+" git checkout DataBase";
         String command1 = "powershell."+os+" git add DataBase.txt";
-        String command2 = "powershell."+os+" git commit -m 'commit prueba7 branchDataBase'";
+
+        String command2 = "powershell."+os+" git commit -m 'Backup:";
         String command3 = "powershell."+os+" git push";
 
         // Execute the commands
@@ -129,22 +134,56 @@ public class Main {
         Process process2 = null;
         Process process3 = null;
 
+        String nProcess ="";
+
         try {
-            process0.waitFor();
-            System.out.print(".");
-            process1 = Runtime.getRuntime().exec(command1);
-            process1.waitFor();
-            System.out.print(".");
-            process2 = Runtime.getRuntime().exec(command2);
-            process2.waitFor();
-            System.out.print(".");
-            process3 = Runtime.getRuntime().exec(command3);
-            process3.waitFor();
-            System.out.println(" Done\n");
+            if (process0.waitFor() == 0) {
+                System.out.print(".");
+                process1 = Runtime.getRuntime().exec(command1);
+                if (process1.waitFor() == 0 ){
+                    System.out.print(".");
+                    Date date = new Date();
+                    process2 = Runtime.getRuntime().exec(command2+date+"'");
+                    if (process2.waitFor() == 0 ){
+                        System.out.print(".");
+                        process3 = Runtime.getRuntime().exec(command3);
+                        if (process3.waitFor()== 0)
+                            System.out.print(" Done");
+                        else if (nProcess.equals(""))
+                            nProcess = "process3";
+                    }else if (nProcess.equals(""))
+                        nProcess = "process2";
+
+                }else if (nProcess.equals(""))
+                    nProcess = "process1";
+
+            }else
+                nProcess = "process0";
+
+            if (!nProcess.equals("")) {
+                System.out.print("Incomplete\n");
+                Process process = null;
+                switch (nProcess){
+                    case "process0": process = process0; break;
+                    case "process1": process = process1; break;
+                    case "process2": process = process2; break;
+                    case "process3": process = process3; break;
+                }
+                BufferedReader buf = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+                String line = "";
+                while ((line = buf.readLine()) != null) {
+                    System.out.println(line);
+                }
+            }
+            System.out.println("");
+
         } catch (InterruptedException e) {
             process0.destroy();
+            assert process1 != null;
             process1.destroy();
+            assert process2 != null;
             process2.destroy();
+            assert process3 != null;
             process3.destroy();
         }
 
