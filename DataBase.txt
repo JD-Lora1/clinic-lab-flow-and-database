@@ -1,1 +1,0 @@
-{"right":{"right":{"right":{"patient":{"name":"prueba","id":145623}},"patient":{"name":"example","id":131341}},"patient":{"name":"jj","id":1001}},"left":{"right":{"right":{"patient":{"name":"5","id":55}},"patient":{"name":"asgmd","id":52}},"left":{"patient":{"name":"jei2","id":23}},"patient":{"name":"jei","id":24}},"patient":{"name":"juandi","id":1000}}
