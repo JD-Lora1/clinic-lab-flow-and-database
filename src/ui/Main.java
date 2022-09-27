@@ -23,11 +23,11 @@ public class Main {
     private static Scanner sc = new Scanner(System.in);
 
     public static void main(String[] args) {
+        avlTree = new AVL_Tree();
+        gson = new Gson();
         //It starts reading the local database file
         readJsonFile();
 
-        avlTree = new AVL_Tree();
-        gson = new Gson();
         Control control = new Control();
 
         //menu
@@ -44,7 +44,7 @@ public class Main {
             switch (opt){
                 case "1":
                     System.out.println("Please provide the id: ");
-                    while (id != -1){
+                    while (id == -1){
                         try {
                             id = Integer.parseInt(sc.nextLine());
                         }catch (NumberFormatException e){
@@ -62,7 +62,7 @@ public class Main {
                     System.out.println("Please provide the name: ");
                     String name = sc.nextLine();
                     System.out.println("Now, write the id: ");
-                    while (id != -1){
+                    while (id == -1){
                         try {
                             id = Integer.parseInt(sc.nextLine());
                         }catch (NumberFormatException e){
@@ -117,18 +117,22 @@ public class Main {
     }
 
     public static void powershellCommand(String os) throws IOException {
+        String command0 = "powershell."+os+" git checkout DataBase";
         String command1 = "powershell."+os+" git add DataBase.txt";
-        String command2 = "powershell."+os+" git commit -m 'commit prueba7'";
+        String command2 = "powershell."+os+" git commit -m 'commit prueba7 branchDataBase'";
         String command3 = "powershell."+os+" git push";
 
         // Execute the commands
         System.out.print("Backup ");
-        Process process1 = Runtime.getRuntime().exec(command1);
+        Process process0 = Runtime.getRuntime().exec(command1);
+        Process process1 = null;
         Process process2 = null;
         Process process3 = null;
 
         try {
+            process0.waitFor();
             System.out.print(".");
+            process1 = Runtime.getRuntime().exec(command1);
             process1.waitFor();
             System.out.print(".");
             process2 = Runtime.getRuntime().exec(command2);
@@ -136,8 +140,9 @@ public class Main {
             System.out.print(".");
             process3 = Runtime.getRuntime().exec(command3);
             process3.waitFor();
-            System.out.print(" Done");
+            System.out.println(" Done\n");
         } catch (InterruptedException e) {
+            process0.destroy();
             process1.destroy();
             process2.destroy();
             process3.destroy();
