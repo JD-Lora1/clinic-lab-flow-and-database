@@ -79,6 +79,7 @@ public class Main {
                 case "3":
                     //Default OS: Windows(exe)
                     try {
+                        writeJsonFile();
                         powershellCommand("exe");
                     } catch (IOException e) {
                         e.printStackTrace();
@@ -92,7 +93,7 @@ public class Main {
     }
 
     public static void readUrl() {
-        String html = null;
+        String html = "";
         URL url;
         try {
             url = new URL("https://github.com/JD-Lora1/clinic-lab-flow-and-database/blob/main/DataBase.txt");
@@ -107,7 +108,7 @@ public class Main {
             if(elementsByTd.size()>1){
                 html = elementsByTd.get(1).text();
             }else {
-                html = null;
+                html = "";
             }
 
         } catch (MalformedURLException e) {
@@ -121,90 +122,76 @@ public class Main {
     }
 
     public static void powershellCommand(String os) throws IOException {
-        String command0 = "powershell."+os+" git checkout DataBase";
         String command1 = "powershell."+os+" git add DataBase.txt";
-
-        String command2 = "powershell."+os+" git commit -m 'Backup:";
+        String command2 = "powershell."+os+" git commit -m 'Backup: ";
         String command3 = "powershell."+os+" git push";
 
         // Execute the commands
         System.out.print("Backup ");
-        Process process0 = Runtime.getRuntime().exec(command0);
-        Process process1 = null;
+        Process process1 = Runtime.getRuntime().exec(command1);
         Process process2 = null;
         Process process3 = null;
 
         String nProcess ="";
-
         try {
-            if (process0.waitFor() == 0) {
+            if (process1.waitFor() == 0 ){
                 System.out.print(".");
-                process1 = Runtime.getRuntime().exec(command1);
-                if (process1.waitFor() == 0 ){
+                Date date = new Date();
+                process2 = Runtime.getRuntime().exec(command2+date+"'");
+                if (process2.waitFor() == 0 ){
                     System.out.print(".");
-                    Date date = new Date();
-                    process2 = Runtime.getRuntime().exec(command2+date+"'");
-                    if (process2.waitFor() == 0 ){
-                        System.out.print(".");
-                        process3 = Runtime.getRuntime().exec(command3);
-                        if (process3.waitFor()== 0)
-                            System.out.print(" Done");
-                        else if (nProcess.equals(""))
-                            nProcess = "process3";
-                    }else if (nProcess.equals(""))
-                        nProcess = "process2";
-
+                    process3 = Runtime.getRuntime().exec(command3);
+                    System.out.print(".");
+                    if (process3.waitFor()== 0){
+                        System.out.print(" Done");
+                    }
+                    else if (nProcess.equals(""))
+                        nProcess = "process3";
                 }else if (nProcess.equals(""))
-                    nProcess = "process1";
+                    nProcess = "process2";
 
             }else
-                nProcess = "process0";
+                nProcess = "process1";
 
             if (!nProcess.equals("")) {
-                System.out.print("Incomplete\n");
                 Process process = null;
                 switch (nProcess){
-                    case "process0": process = process0; break;
-                    case "process1": process = process1; break;
-                    case "process2": process = process2; break;
-                    case "process3": process = process3; break;
+                    case "process1":
+                        process = process1;
+                        System.out.print("Incomplete\n");
+                        break;
+                    case "process2":
+                        process = process2;
+                        System.out.println("Up to Date");
+                        break;
+                    case "process3":
+                        process = process3;
+                        System.out.print("Incomplete\n");
+                        break;
                 }
                 BufferedReader buf = new BufferedReader(new InputStreamReader(process.getErrorStream()));
                 String line = "";
                 while ((line = buf.readLine()) != null) {
                     System.out.println(line);
                 }
+
+                buf = new BufferedReader(new InputStreamReader(process.getInputStream()));
+                while ((line = buf.readLine()) != null) {
+                    System.out.println(line);
+                }
+
+                buf.close();
             }
             System.out.println("");
 
         } catch (InterruptedException e) {
-            process0.destroy();
-            assert process1 != null;
             process1.destroy();
-            assert process2 != null;
-            process2.destroy();
-            assert process3 != null;
-            process3.destroy();
+            if (process2 != null)
+                process2.destroy();
+            if (process3 != null)
+                process3.destroy();
         }
-        Process processLast = Runtime.getRuntime().exec("powershell."+os+" git checkout main");
-        try {
-            if(processLast.waitFor() !=0){
-                BufferedReader buf = new BufferedReader(new InputStreamReader(processLast.getErrorStream()));
-                String line = "";
-                while ((line = buf.readLine()) != null) {
-                    System.out.println(line);
-                }
-            }else {
-                System.out.println("On branch main");
-            }
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-
-        // Getting the results
-        //process1.getOutputStream().close();
     }
-
 
     public static void readJsonFile(){
         File file = new File(FILEPATH);
@@ -267,13 +254,12 @@ public class Main {
 
         //write
         try {
-            String json = gson.toJson(avlTree.getRoot());
-            FileOutputStream fos = new FileOutputStream(file);
-            if(json!=null)
+            if (avlTree.getRoot()!=null){
+                String json = gson.toJson(avlTree.getRoot());
+                FileOutputStream fos = new FileOutputStream(file);
                 fos.write(json.getBytes(StandardCharsets.UTF_8));
-            else
-                fos.write("".getBytes(StandardCharsets.UTF_8));
-            fos.close();
+                fos.close();
+            }
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
         } catch (IOException e) {
