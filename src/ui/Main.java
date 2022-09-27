@@ -124,7 +124,7 @@ public class Main {
 
         // Execute the commands
         System.out.print("Backup ");
-        Process process0 = Runtime.getRuntime().exec(command1);
+        Process process0 = Runtime.getRuntime().exec(command0);
         Process process1 = null;
         Process process2 = null;
         Process process3 = null;
