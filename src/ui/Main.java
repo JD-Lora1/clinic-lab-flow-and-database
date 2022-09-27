@@ -1,14 +1,16 @@
 package ui;
 
+import model.AVL_Tree;
+import model.Control;
+import model.Node;
+
 import com.google.gson.Gson;
-import model.*;
+
+import java.util.Scanner;
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Scanner;
-import java.util.List;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
@@ -21,57 +23,68 @@ public class Main {
     private static Scanner sc = new Scanner(System.in);
 
     public static void main(String[] args) {
+        //It starts reading the local database file
+        readJsonFile();
+
         avlTree = new AVL_Tree();
         gson = new Gson();
-        readJsonFile();
         Control control = new Control();
 
-        try {
-            //Default: Windows(exe)
-            // Save on remote
-            powershellCommand("exe");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
         //menu
         String opt = "";
         while (!opt.equals("0")){
             System.out.println("Choose an option:" +
-                    "\n  1.Search a patient" +
-                    "\n  2.Add a new patient" +
-                    "\n  0.Exit");
+                    "\n 1.Search a patient" +
+                    "\n 2.Add a new patient" +
+                    "\n 3.Backup to Github" +
+                    "\n 0.Exit");
             opt = sc.nextLine();
+            int id = -1;
 
             switch (opt){
-                case "1":break;
+                case "1":
+                    System.out.println("Please provide the id: ");
+                    while (id != -1){
+                        try {
+                            id = Integer.parseInt(sc.nextLine());
+                        }catch (NumberFormatException e){
+                            System.out.println("Please provide a valid id number: ");
+                        }
+                    }
+                    Node foundNode = avlTree.findPatient(id);
+                    if (foundNode!=null){
+                        System.out.println("Found:");
+                        System.out.println(foundNode.getPacient().toString());
+                    }
+                    id = -1;
+                    break;
                 case "2":
-                    System.out.println("Please provide the name");
+                    System.out.println("Please provide the name: ");
                     String name = sc.nextLine();
-                    System.out.println("Now, write the id");
-                    String id = sc.nextLine();
-                    avlTree.insert(new Node(control.addPacient(name,Integer.parseInt(id))));
+                    System.out.println("Now, write the id: ");
+                    while (id != -1){
+                        try {
+                            id = Integer.parseInt(sc.nextLine());
+                        }catch (NumberFormatException e){
+                            System.out.println("Please provide a valid id number: ");
+                        }
+                    }
+                    avlTree.insert(new Node(control.addPacient(name,id)));
                     break;
-            }
-        }
-        if (avlTree.getRoot()!=null){
-            writeJsonFile();
-        }
-    }
 
-    public static String menu(){
-        String opt = "";
-        while (!opt.equals("0")){
-            System.out.println("Choose an option:" +
-                    "\n  1.Search a patient" +
-                    "\n  2.Add a new patient" +
-                    "\n  0.Exit\n");
-            switch (opt){
-                case "1":break;
-                case "2":
-                    break;
+                case "3":
+                    //Default OS: Windows(exe)
+                    try {
+                        powershellCommand("exe");
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
             }
         }
-        return opt;
+        sc.close();
+
+        //Serialize the data locally
+        writeJsonFile();
     }
 
     public static void readUrl() {
@@ -87,9 +100,14 @@ public class Main {
 
             // Get elements by "td". Where is the Json on the second one
             Elements elementsByTd = doc.getElementsByTag("td");
-            html = elementsByTd.get(1).text();
+            if(elementsByTd.size()>1){
+                html = elementsByTd.get(1).text();
+            }else {
+                html = null;
+            }
 
         } catch (MalformedURLException e) {
+            System.out.println("URL no valida");
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
@@ -99,96 +117,34 @@ public class Main {
     }
 
     public static void powershellCommand(String os) throws IOException {
-        /*File file = new File("powershellCommands.txt");
-        FileInputStream fis = new FileInputStream(file);
-        BufferedReader br = new BufferedReader(new InputStreamReader(fis));
-        String command ="";
-        String line;
+        String command1 = "powershell."+os+" git add DataBase.txt";
+        String command2 = "powershell."+os+" git commit -m 'commit prueba7'";
+        String command3 = "powershell."+os+" git push";
 
-        while ((line = br.readLine()) != null) {
-            command += line;
-        }*/
-        String[] commands = new String[3];
-        commands[0] = "powershell.exe git add DataBase.txt";
-        commands[1] = "powershell.exe git commit -m 'commit prueba4'";
-        commands[2] = "powershell.exe git push";
+        // Execute the commands
+        System.out.print("Backup ");
+        Process process1 = Runtime.getRuntime().exec(command1);
+        Process process2 = null;
+        Process process3 = null;
 
-        // Executing the command
-        Process powerShellProcess1 = Runtime.getRuntime().exec(commands[0]);
         try {
-            powerShellProcess1.waitFor();
+            System.out.print(".");
+            process1.waitFor();
+            System.out.print(".");
+            process2 = Runtime.getRuntime().exec(command2);
+            process2.waitFor();
+            System.out.print(".");
+            process3 = Runtime.getRuntime().exec(command3);
+            process3.waitFor();
+            System.out.print(" Done");
         } catch (InterruptedException e) {
-            powerShellProcess1.destroy();
+            process1.destroy();
+            process2.destroy();
+            process3.destroy();
         }
-        Process powerShellProcess2 = Runtime.getRuntime().exec(commands[1]);
-        try {
-            powerShellProcess2.waitFor();
-        } catch (InterruptedException e) {
-            powerShellProcess2.destroy();
-        }
-        Process powerShellProcess3 = Runtime.getRuntime().exec(commands[2]);
-        try {
-            powerShellProcess3.waitFor();
-        } catch (InterruptedException e) {
-            powerShellProcess3.destroy();
-        }
-
-        /*Process powerShellProcess1 = null;
-        try {
-            powerShellProcess1 = Runtime.getRuntime().exec(commands);
-
-            int exitValue = powerShellProcess1.waitFor();
-            System.out.println("exit value: " + exitValue);
-
-        } catch (InterruptedException e) {
-            //thread was interrupted.
-            if(powerShellProcess1!=null) { powerShellProcess1.destroy(); }
-            //reset interrupted flag
-            Thread.currentThread().interrupt();
-
-        } catch (Exception e) {
-            //an other error occurred
-            if(powerShellProcess1!=null) { powerShellProcess1.destroy(); }
-        }
-
-        //2
-        Process powerShellProcess2 = null;
-        try {
-            powerShellProcess2 = Runtime.getRuntime().exec(commands[1]);
-            int exitValue = powerShellProcess2.waitFor();
-            System.out.println("exit value: " + exitValue);
-
-        } catch (InterruptedException e) {
-            //thread was interrupted.
-            if(powerShellProcess2!=null) { powerShellProcess2.destroy(); }
-            //reset interrupted flag
-            Thread.currentThread().interrupt();
-
-        } catch (Exception e) {
-            //an other error occurred
-            if(powerShellProcess2!=null) { powerShellProcess2.destroy(); }
-        }
-        //3
-        try {
-            powerShellProcess1 = Runtime.getRuntime().exec(commands[2]);
-
-            int exitValue = powerShellProcess1.waitFor();
-            System.out.println("exit value: " + exitValue);
-
-        } catch (InterruptedException e) {
-            //thread was interrupted.
-            if(powerShellProcess1!=null) { powerShellProcess1.destroy(); }
-            //reset interrupted flag
-            Thread.currentThread().interrupt();
-
-        } catch (Exception e) {
-            //an other error occurred
-            if(powerShellProcess1!=null) { powerShellProcess1.destroy(); }
-        }*/
-        //powerShellProcess1.getOutputStream().close();
 
         // Getting the results
-        //powerShellProcess1.getOutputStream().close();
+        //process1.getOutputStream().close();
     }
 
 
@@ -255,7 +211,10 @@ public class Main {
         try {
             String json = gson.toJson(avlTree.getRoot());
             FileOutputStream fos = new FileOutputStream(file);
-            fos.write(json.getBytes(StandardCharsets.UTF_8));
+            if(json!=null)
+                fos.write(json.getBytes(StandardCharsets.UTF_8));
+            else
+                fos.write("".getBytes(StandardCharsets.UTF_8));
             fos.close();
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
