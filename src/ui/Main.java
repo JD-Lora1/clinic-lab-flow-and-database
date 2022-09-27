@@ -186,6 +186,20 @@ public class Main {
             assert process3 != null;
             process3.destroy();
         }
+        Process processLast = Runtime.getRuntime().exec("powershell."+os+" git checkout main");
+        try {
+            if(processLast.waitFor() !=0){
+                BufferedReader buf = new BufferedReader(new InputStreamReader(processLast.getErrorStream()));
+                String line = "";
+                while ((line = buf.readLine()) != null) {
+                    System.out.println(line);
+                }
+            }else {
+                System.out.println("On branch main");
+            }
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
 
         // Getting the results
         //process1.getOutputStream().close();
