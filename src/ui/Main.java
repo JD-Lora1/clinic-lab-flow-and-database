@@ -18,6 +18,7 @@ import java.nio.charset.StandardCharsets;
 import model.Patient;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import static java.lang.Math.abs;
@@ -227,7 +228,7 @@ public class Main {
             while (!option.equalsIgnoreCase("Y") && !option.equalsIgnoreCase("N")) {
                 System.out.println("Do you wanna import the data from a remote DataBase?: Y/N");
                 option = sc.nextLine();
-                if (option.equals("Y")){
+                if (option.equalsIgnoreCase("Y")){
                     String commit = "";
                     ArrayList<String> commits = new ArrayList<>();
                     while (commit.equals("") || !commits.contains(commit)){
@@ -285,11 +286,12 @@ public class Main {
                 if (elementsByTd.get(i).hasText())
                     elementsText.add(elementsByTd.get(i).text());
             }
-            if(elementsText.size()>2){
-                html = elementsText.get(elementsText.size()-1);
-            }else {
+
+            if (elementsText.get(0).contains("+0,0"))
                 html = "";
-            }
+            else
+                html = elementsText.get(elementsText.size()-1);
+
             System.out.println(". Done");
 
         } catch (MalformedURLException e) {
