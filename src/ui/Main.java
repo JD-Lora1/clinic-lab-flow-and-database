@@ -24,7 +24,7 @@ import static java.lang.Math.abs;
 public class Main {
 
     private static final String FILEPATH = "DataBase.txt";
-    private static final String STATEAPP_PATH = "/appState/currentState.txt";
+    private static final String STATEAPP_PATH = "appState/currentState.txt";
     private static final String KEYWORD_BACKUP = "Backup:";
     private static AVL_Tree avlTree;
     private static Gson gson;
@@ -36,8 +36,7 @@ public class Main {
         gson = new Gson();
         //It starts reading the local database file
         readJsonFile();
-
-
+        String state = readAppState();
         Control control = new Control();
 
         //menu
@@ -88,8 +87,12 @@ public class Main {
                 case "3":
                     //Default OS: Windows(exe)
                     try {
+                        if (state!=null) {
+                            firstCommit();
+                            overwriteAppState();
+                        }
                         writeJsonFile();
-                        powershellCommand();
+                        backupCommand();
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -101,14 +104,46 @@ public class Main {
         sc.close();
     }
 
+    public static void overwriteAppState(){
+        File file = new File(STATEAPP_PATH);
+        try {
+            FileOutputStream fos = new FileOutputStream(file);
+            BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(fos));
+            bw.write("1");
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    public static String readAppState(){
+        File file = new File(STATEAPP_PATH);
+        String initial ="";
+        try {
+            FileInputStream fis = new FileInputStream(file);
+            BufferedReader br = new BufferedReader(new InputStreamReader(fis));
+            initial = br.readLine();
+            fis.close();
+            br.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return initial;
+    }
+
     public static void firstCommit(){
+        System.out.println("FirstCommit");
         Process process = null;
         try {
             process = Runtime.getRuntime().exec("powershell."+os+" git init");
             process.waitFor();
-            process = Runtime.getRuntime().exec("git remote add origin https://github.com/JD-Lora1/clinic-lab-flow-and-database.git");
+            process = Runtime.getRuntime().exec("powershell."+os+"git remote add origin https://github.com/JD-Lora1/clinic-lab-flow-and-database.git");
+            process.waitFor();
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         } catch (InterruptedException e) {
             process.destroy();
         }
@@ -124,13 +159,15 @@ public class Main {
         }
     }
 
-
-    public static void powershellCommand() throws IOException {
+    public static void backupCommand() throws IOException {
         //Need to do commands for git init and add remote, etc, for the first time, and serialize when it
         //be configured, as an 1 on a .txt
         String command1 = "powershell."+os+" git add DataBase.txt";
+        //String command1 = "git add DataBase.txt";
         String command2 = "powershell."+os+" git commit -m 'Backup: ";
+        //String command2 = "git commit -m 'Backup: ";
         String command3 = "powershell."+os+" git push";
+        //String command3 = "git push";
 
         // Execute the commands
         System.out.print("Backup ");
@@ -169,7 +206,7 @@ public class Main {
                         break;
                     case "process2":
                         process = process2;
-                        System.out.println("Up to Date");
+                        System.out.println(" - ");
                         break;
                     case "process3":
                         process = process3;
