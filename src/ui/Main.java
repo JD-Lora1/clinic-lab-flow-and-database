@@ -6,6 +6,8 @@ import model.Node;
 
 import com.google.gson.Gson;
 
+import java.net.Socket;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Scanner;
 import java.io.*;
@@ -23,9 +25,11 @@ import static java.lang.Math.abs;
 public class Main {
 
     private static final String FILEPATH = "DataBase.txt";
+    private static final String KEYWORD_BACKUP = "Backup:";
     private static AVL_Tree avlTree;
     private static Gson gson;
     private static Scanner sc = new Scanner(System.in);
+    private static String os = "exe"; //Default OS, Windows
 
     public static void main(String[] args) {
         avlTree = new AVL_Tree();
@@ -84,7 +88,7 @@ public class Main {
                     //Default OS: Windows(exe)
                     try {
                         writeJsonFile();
-                        powershellCommand("exe");
+                        powershellCommand();
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -106,36 +110,10 @@ public class Main {
         }
     }
 
-    public static void readUrl() {
-        String html = "";
-        URL url;
-        try {
-            url = new URL("https://github.com/JD-Lora1/clinic-lab-flow-and-database/blob/main/DataBase.txt");
-            BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()));
-            String line = null;
-            while ((line = reader.readLine()) != null)
-                html+=line;
-            Document doc = Jsoup.parse(html);
 
-            // Get elements by "td". Where is the Json on the second one
-            Elements elementsByTd = doc.getElementsByTag("td");
-            if(elementsByTd.size()>1){
-                html = elementsByTd.get(1).text();
-            }else {
-                html = "";
-            }
-
-        } catch (MalformedURLException e) {
-            System.out.println("URL no valida");
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        Node node = gson.fromJson(html, Node.class);
-        avlTree.setRoot(node);
-    }
-
-    public static void powershellCommand(String os) throws IOException {
+    public static void powershellCommand() throws IOException {
+        //Need to do commands for git init and add remote, etc, for the first time, and serialize when it
+        //be configured, as an 1 on a .txt
         String command1 = "powershell."+os+" git add DataBase.txt";
         String command2 = "powershell."+os+" git commit -m 'Backup: ";
         String command3 = "powershell."+os+" git push";
@@ -157,7 +135,8 @@ public class Main {
                     process3 = Runtime.getRuntime().exec(command3);
                     System.out.print(".");
                     if (process3.waitFor()== 0){
-                        System.out.print(" Done");
+                        System.out.println(" Done");
+                        System.out.println("See it on https://github.com/JD-Lora1/clinic-lab-flow-and-database/blob/main/DataBase.txt");
                     }
                     else if (nProcess.equals(""))
                         nProcess = "process3";
@@ -172,7 +151,7 @@ public class Main {
                 switch (nProcess){
                     case "process1":
                         process = process1;
-                        System.out.print("Incomplete\n");
+                        System.out.println("Incomplete\n");
                         break;
                     case "process2":
                         process = process2;
@@ -180,7 +159,7 @@ public class Main {
                         break;
                     case "process3":
                         process = process3;
-                        System.out.print("Incomplete\n");
+                        System.out.println("Incomplete\n");
                         break;
                 }
                 BufferedReader buf = new BufferedReader(new InputStreamReader(process.getErrorStream()));
@@ -193,10 +172,8 @@ public class Main {
                 while ((line = buf.readLine()) != null) {
                     System.out.println(line);
                 }
-
                 buf.close();
             }
-            System.out.println("");
 
         } catch (InterruptedException e) {
             process1.destroy();
@@ -205,6 +182,35 @@ public class Main {
             if (process3 != null)
                 process3.destroy();
         }
+    }
+    private static ArrayList<String> gitLog() {
+        String command1 = "powershell."+os+" git log --graph --decorate --format=format:\'%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)\'";
+        Process process1 = null;
+        ArrayList<String> commits = new ArrayList<>();
+
+        try {
+            process1 = Runtime.getRuntime().exec(command1);
+            process1.waitFor();
+            BufferedReader buf = new BufferedReader(new InputStreamReader(process1.getErrorStream()));
+            String line = "";
+            while ((line = buf.readLine()) != null) {
+                System.out.println(line);
+            }
+            buf = new BufferedReader(new InputStreamReader(process1.getInputStream()));
+
+            while ((line = buf.readLine()) != null) {
+                if (line.contains(KEYWORD_BACKUP)){
+                    System.out.println(line);
+                    commits.add(line.substring(2,9));
+                }
+            }
+            buf.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (InterruptedException e) {
+            process1.destroy();
+        }
+        return commits;
     }
 
     public static void readJsonFile(){
@@ -216,13 +222,20 @@ public class Main {
             e.printStackTrace();
         }
         if(file.length()==0){
-            System.out.println("The DataBase is empty");
+            System.out.println("The local DataBase is empty");
             String option = "";
-            while (!option.equals("Y") && !option.equals("N")) {
+            while (!option.equalsIgnoreCase("Y") && !option.equalsIgnoreCase("N")) {
                 System.out.println("Do you wanna import the data from a remote DataBase?: Y/N");
                 option = sc.nextLine();
                 if (option.equals("Y")){
-                    readUrl();
+                    String commit = "";
+                    ArrayList<String> commits = new ArrayList<>();
+                    while (commit.equals("") || !commits.contains(commit)){
+                        System.out.println("Copy and paste the hash of the backup which you want to import");
+                        commits = gitLog();
+                        commit = sc.nextLine();
+                    }
+                    readUrl(commit);
                 }
             }
         }else {
@@ -246,6 +259,47 @@ public class Main {
                 e.printStackTrace();
             }
         }
+        writeJsonFile();
+    }
+
+    public static void readUrl(String commit) {
+        String html = "";
+        URL url;
+        System.out.print("Reading Data ");
+        try {
+            //url = new URL("https://github.com/JD-Lora1/clinic-lab-flow-and-database/blob/main/DataBase.txt");
+            url = new URL("https://github.com/JD-Lora1/clinic-lab-flow-and-database/commit/"+commit);
+            BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()));
+            String line = null;
+            System.out.print(".");
+            while ((line = reader.readLine()) != null)
+                html+=line;
+            Document doc = Jsoup.parse(html);
+
+            System.out.print(".");
+
+            // Get elements by "td". Where is the Json on the second one
+            Elements elementsByTd = doc.getElementsByTag("td");
+            ArrayList<String> elementsText = new ArrayList<>();
+            for (int i=0; i<elementsByTd.size();i++){
+                if (elementsByTd.get(i).hasText())
+                    elementsText.add(elementsByTd.get(i).text());
+            }
+            if(elementsText.size()>2){
+                html = elementsText.get(elementsText.size()-1);
+            }else {
+                html = "";
+            }
+            System.out.println(". Done");
+
+        } catch (MalformedURLException e) {
+            System.out.println("URL no valida");
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        Node node = gson.fromJson(html, Node.class);
+        avlTree.setRoot(node);
     }
 
     public static void writeJsonFile(){

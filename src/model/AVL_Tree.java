@@ -18,7 +18,7 @@ public class AVL_Tree {
                     node = doubleWithLeftChild(node);
             }
         }
-        else if (patient.getId() < node.getPatient().getId()) {
+        else if (patient.getId() > node.getPatient().getId()) {
             node.right = insert( patient, node.right );
             if( getHeight( node.right ) - getHeight( node.left ) == 2 )
                 if( patient.getId() > node.right.getPatient().getId())
