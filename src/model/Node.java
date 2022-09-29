@@ -4,6 +4,7 @@ public class Node {
     private Node right;
     private Node left;
     private Patient patient;
+    private int h;
 
     public Node(Patient patient) {
         this.patient = patient;
@@ -25,11 +26,19 @@ public class Node {
         this.left = left;
     }
 
-    public Patient getPacient() {
+    public Patient getPatient() {
         return patient;
     }
 
-    public void setPacient(Patient patient) {
+    public void setPatient(Patient patient) {
         this.patient = patient;
+    }
+
+    public int getH() {
+        return h;
+    }
+
+    public void setH(int h) {
+        this.h = h;
     }
 }

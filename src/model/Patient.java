@@ -2,9 +2,9 @@ package model;
 
 public class Patient {
     private String name;
-    private int id;
+    private long id;
 
-    public Patient(String name, int id) {
+    public Patient(String name, long id) {
         this.name = name;
         this.id = id;
     }
@@ -17,11 +17,11 @@ public class Patient {
         this.name = name;
     }
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(long id) {
         this.id = id;
     }
 

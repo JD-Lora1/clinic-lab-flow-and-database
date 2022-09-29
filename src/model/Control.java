@@ -6,7 +6,7 @@ public class Control {
 
     }
 
-    public Patient addPacient(String name, int id){
+    public Patient addPacient(String name, long id){
         Patient x = new Patient(name,id);
         return x;
     }

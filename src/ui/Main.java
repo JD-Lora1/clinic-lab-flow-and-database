@@ -6,14 +6,12 @@ import model.Node;
 
 import com.google.gson.Gson;
 
-import java.util.Calendar;
 import java.util.Date;
 import java.util.Scanner;
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.util.logging.ErrorManager;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -41,16 +39,17 @@ public class Main {
                     "\n 1.Search a patient" +
                     "\n 2.Add a new patient" +
                     "\n 3.Backup to Github" +
+                    "\n 4.Is the tree balanced?" +
                     "\n 0.Exit");
             opt = sc.nextLine();
-            int id = -1;
+            long id = -1;
 
             switch (opt){
                 case "1":
                     System.out.println("Please provide the id: ");
                     while (id == -1){
                         try {
-                            id = Integer.parseInt(sc.nextLine());
+                            id = Long.parseLong(sc.nextLine());
                         }catch (NumberFormatException e){
                             System.out.println("Please provide a valid id number: ");
                         }
@@ -58,7 +57,7 @@ public class Main {
                     Node foundNode = avlTree.findPatient(id);
                     if (foundNode!=null){
                         System.out.println("Found:");
-                        System.out.println(foundNode.getPacient().toString());
+                        System.out.println(foundNode.getPatient().toString());
                     }
                     id = -1;
                     break;
@@ -68,12 +67,14 @@ public class Main {
                     System.out.println("Now, write the id: ");
                     while (id == -1){
                         try {
-                            id = Integer.parseInt(sc.nextLine());
+                            id = Long.parseLong(sc.nextLine());
                         }catch (NumberFormatException e){
                             System.out.println("Please provide a valid id number: ");
                         }
                     }
                     avlTree.insert(new Node(control.addPacient(name,id)));
+                    //Serialize the data locally
+                    writeJsonFile();
                     break;
 
                 case "3":
@@ -84,12 +85,16 @@ public class Main {
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
+                case "4": isBalance();
             }
         }
         sc.close();
+    }
 
-        //Serialize the data locally
-        writeJsonFile();
+    public static void isBalance(){
+        System.out.println("left: "+avlTree.findIterations(avlTree.getRoot().getLeft(),0));
+        System.out.println("right: "+avlTree.findIterations(avlTree.getRoot().getRight(),0));
+
     }
 
     public static void readUrl() {
@@ -202,19 +207,14 @@ public class Main {
             e.printStackTrace();
         }
         if(file.length()==0){
-            System.out.println("There is no data");
+            System.out.println("The DataBase is empty");
             String option = "";
-            while (!option.equals("Y") || !option.equals("N")) {
+            while (!option.equals("Y") && !option.equals("N")) {
                 System.out.println("Do you wanna import the data from a remote DataBase?: Y/N");
                 option = sc.nextLine();
                 if (option.equals("Y")){
                     readUrl();
-                    break;
                 }
-                else if (option.equals("N")) {
-                    break;
-                }
-
             }
         }else {
             try {
@@ -245,9 +245,10 @@ public class Main {
         try {
             if(!file.exists())
                 file.createNewFile();
-            else
+            else{
+                //Delete data on DataBase.txt
                 new FileWriter(FILEPATH, false).close();
-
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -261,9 +262,9 @@ public class Main {
                 fos.close();
             }
         } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
     }
 
