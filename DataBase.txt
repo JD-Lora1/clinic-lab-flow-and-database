@@ -1,1 +1,1 @@
-{"right":{"patient":{"name":"UA","id":124458547},"height":0},"left":{"patient":{"name":"2","id":22},"height":0},"patient":{"name":"sd","id":32},"height":1}
+{"right":{"left":{"patient":{"name":"2","id":1313},"height":0},"patient":{"name":"UA","id":124458547},"height":1},"left":{"patient":{"name":"2","id":22},"height":0},"patient":{"name":"sd","id":32},"height":2}
