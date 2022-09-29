@@ -13,9 +13,12 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 
+import model.Patient;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
+
+import static java.lang.Math.abs;
 
 public class Main {
 
@@ -72,7 +75,7 @@ public class Main {
                             System.out.println("Please provide a valid id number: ");
                         }
                     }
-                    avlTree.insert(new Node(control.addPacient(name,id)));
+                    avlTree.insert(new Patient(name,id));
                     //Serialize the data locally
                     writeJsonFile();
                     break;
@@ -85,16 +88,22 @@ public class Main {
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
+                    break;
                 case "4": isBalance();
+                break;
             }
         }
         sc.close();
     }
 
     public static void isBalance(){
-        System.out.println("left: "+avlTree.findIterations(avlTree.getRoot().getLeft(),0));
-        System.out.println("right: "+avlTree.findIterations(avlTree.getRoot().getRight(),0));
-
+        if (avlTree.getBalance(avlTree.getRoot())==0){
+            System.out.println("It´s balanced");
+        }else if (abs(avlTree.getBalance(avlTree.getRoot()))==1){
+            System.out.println("It's almost balanced");
+        }else {
+            System.out.println(">2");
+        }
     }
 
     public static void readUrl() {
