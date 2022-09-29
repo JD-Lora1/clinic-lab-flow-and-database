@@ -1,31 +1,30 @@
 package ui;
 
-import model.AVL_Tree;
-import model.Control;
-import model.Node;
+import model.*;
 
+//Gson Lib. To use Json
 import com.google.gson.Gson;
+//Jsoup Lib. To read GitHub html page
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
 
-import java.net.Socket;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Scanner;
-import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-
-import model.Patient;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
-
 import static java.lang.Math.abs;
+
+//TODO
+// Move some methods to Control
 
 public class Main {
 
     private static final String FILEPATH = "DataBase.txt";
+    private static final String STATEAPP_PATH = "/appState/currentState.txt";
     private static final String KEYWORD_BACKUP = "Backup:";
     private static AVL_Tree avlTree;
     private static Gson gson;
@@ -37,6 +36,7 @@ public class Main {
         gson = new Gson();
         //It starts reading the local database file
         readJsonFile();
+
 
         Control control = new Control();
 
@@ -99,6 +99,19 @@ public class Main {
             }
         }
         sc.close();
+    }
+
+    public static void firstCommit(){
+        Process process = null;
+        try {
+            process = Runtime.getRuntime().exec("powershell."+os+" git init");
+            process.waitFor();
+            process = Runtime.getRuntime().exec("git remote add origin https://github.com/JD-Lora1/clinic-lab-flow-and-database.git");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (InterruptedException e) {
+            process.destroy();
+        }
     }
 
     public static void isBalance(){
@@ -268,7 +281,6 @@ public class Main {
         URL url;
         System.out.print("Reading Data ");
         try {
-            //url = new URL("https://github.com/JD-Lora1/clinic-lab-flow-and-database/blob/main/DataBase.txt");
             url = new URL("https://github.com/JD-Lora1/clinic-lab-flow-and-database/commit/"+commit);
             BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()));
             String line = null;
