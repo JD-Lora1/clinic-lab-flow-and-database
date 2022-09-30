@@ -16,6 +16,7 @@ import java.util.Scanner;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+
 import static java.lang.Math.abs;
 
 //TODO
@@ -23,8 +24,9 @@ import static java.lang.Math.abs;
 
 public class Main {
 
-    private static final String FILEPATH = "DataBase.txt";
-    private static final String STATEAPP_PATH = "appState/currentState.txt";
+    private static String databaseFilePath = "";
+    private static final String APPSTATE_STATE = "appState/currentState.txt";
+    private static final String APPSTATE_DB_PATH = "appState/dataBase-Path.txt";
     private static final String KEYWORD_BACKUP = "Backup:";
     private static AVL_Tree avlTree;
     private static Gson gson;
@@ -35,8 +37,8 @@ public class Main {
         avlTree = new AVL_Tree();
         gson = new Gson();
         //It starts reading the local database file
+        databaseFilePath = readFile(APPSTATE_DB_PATH);
         readJsonFile();
-        readAppState();
         Control control = new Control();
 
         //menu
@@ -87,9 +89,9 @@ public class Main {
                 case "3":
                     //Default OS: Windows(exe)
                     try {
-                        File fileAppState = new File(STATEAPP_PATH);
+                        File fileAppState = new File(APPSTATE_STATE);
                         if (fileAppState.length()==0) {
-                            overwriteAppState(fileAppState);
+                            writeFiles(APPSTATE_STATE, "git initialized remote");
                             initializeGit("remote");
                         }
                         writeJsonFile();
@@ -105,11 +107,12 @@ public class Main {
         sc.close();
     }
 
-    public static void overwriteAppState(File file){
+    public static void writeFiles(String filePath, String sWrite){
+        File file = new File(filePath);
         try {
             FileOutputStream fos = new FileOutputStream(file);
             BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(fos));
-            bw.write("git initialized");
+            bw.write(sWrite);
             bw.close();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -117,13 +120,14 @@ public class Main {
             e.printStackTrace();
         }
     }
-    public static void readAppState(){
-        File file = new File(STATEAPP_PATH);
-        String initial ="";
+    public static String readFile(String filePath){
+        File file = new File(filePath);
+        //Stateapp, initial
+        String value = "";
         try {
             FileInputStream fis = new FileInputStream(file);
             BufferedReader br = new BufferedReader(new InputStreamReader(fis));
-            initial = br.readLine();
+            value = br.readLine();
             fis.close();
             br.close();
         } catch (FileNotFoundException e) {
@@ -131,21 +135,63 @@ public class Main {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        if (value==null)
+            value = "";
+        return value;
     }
 
     public static void initializeGit(String opt){
         System.out.print("Initializing .");
+        ArrayList<String> commands = new ArrayList<>();
+        commands.add("powershell."+os+" git init");
         Process process = null;
+
         try {
             //Initialize the repo
-            process = Runtime.getRuntime().exec("powershell."+os+" git init");
+            if (opt.equals("init")){
+                commands.add("powershell."+os+" git pull");
+            } else if (opt.equals("remote")) {
+                commands.add("powershell."+os+" git add .");
+                commands.add("powershell."+os+" git commit -m 'first commit'");
+                commands.add("powershell."+os+" git branch -M main");
+                commands.add("powershell."+os+" git remote add origin https://github.com/JD-Lora1/Clinic-DataBase-Backup.git");
+                commands.add("powershell."+os+" git push -u origin main");
+            }
+
+            for (String command : commands){
+                process = Runtime.getRuntime().exec(command);
+                if (process.waitFor()==1)
+                    break;
+                System.out.print(".");
+            }
+
+            if (process.exitValue()==1)
+                process.destroy();
+            else if (opt.equals("init")){
+                writeFiles(APPSTATE_STATE, "Git initialized. ");
+            }else if (opt.equals("remote")){
+                writeFiles(APPSTATE_STATE, " - Remote added");
+            }
+            System.out.print(" *");
+            /*process = Runtime.getRuntime().exec("powershell."+os+" git init");
             process.waitFor();
             System.out.print(".");
-            if (opt.equals("remote")){
-                process = Runtime.getRuntime().exec("powershell."+os+" git remote add origin https://github.com/JD-Lora1/clinic-lab-flow-and-database.git");
-                process.waitFor();
-            }
-            System.out.print(". *");
+            process = Runtime.getRuntime().exec("powershell."+os+" git add .");
+            process.waitFor();
+            System.out.print(".");
+            process = Runtime.getRuntime().exec("powershell."+os+" git commit -m 'first commit'");
+            process.waitFor();
+            System.out.print(".");
+            process = Runtime.getRuntime().exec("powershell."+os+" git branch -M main");
+            process.waitFor();
+            System.out.print(".");
+            process = Runtime.getRuntime().exec("powershell."+os+" git remote add origin https://github.com/JD-Lora1/Clinic-DataBase-Backup.git");
+            process.waitFor();
+            System.out.print(".");
+            process = Runtime.getRuntime().exec("powershell."+os+" git push -u origin main");
+            process.waitFor();
+            System.out.print(".");
+            System.out.print(". *");*/
         } catch (IOException e) {
             e.printStackTrace();
         } catch (InterruptedException e) {
@@ -244,13 +290,28 @@ public class Main {
     }
 
     public static void readJsonFile(){
-        File file = new File(FILEPATH);
-        try {
-            if(!file.exists())
-                file.createNewFile();
-        } catch (IOException e) {
-            e.printStackTrace();
+        File file = new File(databaseFilePath);
+        //File file = new File("-");
+        while (!file.exists()) {
+            try {
+                System.out.println("-> Write the full path of the folder where you want to create your DataBase file");
+                String xPath = sc.nextLine();
+                file = new File(xPath);
+                if (file.isDirectory()){
+                    file = new File(xPath+"/DataBase.txt");
+                    file.createNewFile();
+                    databaseFilePath = xPath+"/DataBase.txt";
+                    System.out.println("DataBase.txt Created");
+                    writeFiles(APPSTATE_DB_PATH, databaseFilePath);
+
+                }else {
+                    System.out.println("Invalid path directory/folder");
+                }
+            }catch (IOException e) {
+                e.printStackTrace();
+            }
         }
+
         if(file.length()==0){
             System.out.println("The local DataBase is empty");
             String option = "";
@@ -261,9 +322,8 @@ public class Main {
                     String commit = "";
                     ArrayList<String> commits = new ArrayList<>();
                     //Check if git was initialized
-                    File fileAppState = new File(STATEAPP_PATH);
+                    File fileAppState = new File(APPSTATE_STATE);
                     if (fileAppState.length()==0) {
-                        overwriteAppState(fileAppState);
                         initializeGit("init");
                     }
                     while (commit.equals("") || !commits.contains(commit)){
@@ -339,14 +399,14 @@ public class Main {
     }
 
     public static void writeJsonFile(){
-        File file = new File(FILEPATH);
+        File file = new File(databaseFilePath);
         // Create file or delete its data
         try {
             if(!file.exists())
                 file.createNewFile();
             else{
                 //Delete data on DataBase.txt
-                new FileWriter(FILEPATH, false).close();
+                new FileWriter(databaseFilePath, false).close();
             }
         } catch (IOException e) {
             e.printStackTrace();
