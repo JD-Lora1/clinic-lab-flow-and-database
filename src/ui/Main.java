@@ -134,21 +134,19 @@ public class Main {
     }
 
     public static void firstCommit(){
-        System.out.println("FirstCommit");
+        System.out.print("Initializing ");
         Process process = null;
         try {
             //Initialize the repo
             process = Runtime.getRuntime().exec("powershell."+os+" git init");
             process.waitFor();
-            powershellReader(process);
+            System.out.print(".");
             process = Runtime.getRuntime().exec("powershell."+os+" git add .");
             process.waitFor();
-            powershellReader(process);
-            System.out.println("Hola");
+            System.out.print(".");
             process = Runtime.getRuntime().exec("powershell."+os+" git remote add origin https://github.com/JD-Lora1/clinic-lab-flow-and-database.git");
             process.waitFor();
-            powershellReader(process);
-
+            System.out.print(". *");
         } catch (IOException e) {
             e.printStackTrace();
         } catch (InterruptedException e) {
