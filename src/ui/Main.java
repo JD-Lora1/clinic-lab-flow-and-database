@@ -36,7 +36,7 @@ public class Main {
         gson = new Gson();
         //It starts reading the local database file
         readJsonFile();
-        String state = readAppState();
+        readAppState();
         Control control = new Control();
 
         //menu
@@ -87,12 +87,16 @@ public class Main {
                 case "3":
                     //Default OS: Windows(exe)
                     try {
-                        if (state!=null) {
+                        File fileAppState = new File(STATEAPP_PATH);
+                        if (fileAppState.length()==0) {
+                            overwriteAppState(fileAppState);
                             firstCommit();
-                            overwriteAppState();
                         }
                         writeJsonFile();
-                        backupCommand();
+                        //temporal
+                        if (false){
+                            backupCommand();
+                        }
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -104,19 +108,19 @@ public class Main {
         sc.close();
     }
 
-    public static void overwriteAppState(){
-        File file = new File(STATEAPP_PATH);
+    public static void overwriteAppState(File file){
         try {
             FileOutputStream fos = new FileOutputStream(file);
             BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(fos));
-            bw.write("1");
+            bw.write("git initialized");
+            bw.close();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
-    public static String readAppState(){
+    public static void readAppState(){
         File file = new File(STATEAPP_PATH);
         String initial ="";
         try {
@@ -130,8 +134,6 @@ public class Main {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        return initial;
     }
 
     public static void firstCommit(){
@@ -140,13 +142,32 @@ public class Main {
         try {
             process = Runtime.getRuntime().exec("powershell."+os+" git init");
             process.waitFor();
-            process = Runtime.getRuntime().exec("powershell."+os+"git remote add origin https://github.com/JD-Lora1/clinic-lab-flow-and-database.git");
+            powershellReader(process);
+            process = Runtime.getRuntime().exec("powershell."+os+" git add .");
             process.waitFor();
+            powershellReader(process);
+            process = Runtime.getRuntime().exec("powershell."+os+" git remote add origin https://github.com/JD-Lora1/clinic-lab-flow-and-database.git");
+            process.waitFor();
+            powershellReader(process);
         } catch (IOException e) {
             e.printStackTrace();
         } catch (InterruptedException e) {
             process.destroy();
         }
+    }
+
+    public static void powershellReader(Process process) throws IOException {
+        BufferedReader buf = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+        String line = "";
+        while ((line = buf.readLine()) != null) {
+            System.out.println(line);
+        }
+
+        buf = new BufferedReader(new InputStreamReader(process.getInputStream()));
+        while ((line = buf.readLine()) != null) {
+            System.out.println(line);
+        }
+        buf.close();
     }
 
     public static void isBalance(){
