@@ -90,7 +90,7 @@ public class Main {
                         File fileAppState = new File(STATEAPP_PATH);
                         if (fileAppState.length()==0) {
                             overwriteAppState(fileAppState);
-                            firstCommit();
+                            initializeGit("remote");
                         }
                         writeJsonFile();
                         backupCommand();
@@ -133,25 +133,25 @@ public class Main {
         }
     }
 
-    public static void firstCommit(){
-        System.out.print("Initializing ");
+    public static void initializeGit(String opt){
+        System.out.print("Initializing .");
         Process process = null;
         try {
             //Initialize the repo
             process = Runtime.getRuntime().exec("powershell."+os+" git init");
             process.waitFor();
             System.out.print(".");
-            process = Runtime.getRuntime().exec("powershell."+os+" git add .");
-            process.waitFor();
-            System.out.print(".");
-            process = Runtime.getRuntime().exec("powershell."+os+" git remote add origin https://github.com/JD-Lora1/clinic-lab-flow-and-database.git");
-            process.waitFor();
+            if (opt.equals("remote")){
+                process = Runtime.getRuntime().exec("powershell."+os+" git remote add origin https://github.com/JD-Lora1/clinic-lab-flow-and-database.git");
+                process.waitFor();
+            }
             System.out.print(". *");
         } catch (IOException e) {
             e.printStackTrace();
         } catch (InterruptedException e) {
             process.destroy();
         }
+        System.out.println("");
     }
 
     public static void powershellReader(Process process) throws IOException {
@@ -198,16 +198,17 @@ public class Main {
             exitWhit = process.waitFor();
             if (exitWhit==1)
                 throw new InterruptedException();
-            System.out.print(".");
+            System.out.print(". ");
             process = Runtime.getRuntime().exec(command3);
             System.out.print(".");
             exitWhit = process.waitFor();
             if (exitWhit==1)
                 throw new InterruptedException();
-            System.out.println(" Done");
+            System.out.println("Done");
             System.out.println("See it on https://github.com/JD-Lora1/clinic-lab-flow-and-database/blob/main/DataBase.txt");
 
         } catch (InterruptedException e) {
+            System.out.println("");
             powershellReader(process);
             process.destroy();
         }
@@ -259,6 +260,12 @@ public class Main {
                 if (option.equalsIgnoreCase("Y")){
                     String commit = "";
                     ArrayList<String> commits = new ArrayList<>();
+                    //Check if git was initialized
+                    File fileAppState = new File(STATEAPP_PATH);
+                    if (fileAppState.length()==0) {
+                        overwriteAppState(fileAppState);
+                        initializeGit("init");
+                    }
                     while (commit.equals("") || !commits.contains(commit)){
                         System.out.println("Copy and paste the hash of the backup which you want to import");
                         commits = gitLog();
