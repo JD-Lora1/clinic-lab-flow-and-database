@@ -93,10 +93,7 @@ public class Main {
                             firstCommit();
                         }
                         writeJsonFile();
-                        //temporal
-                        if (false){
-                            backupCommand();
-                        }
+                        backupCommand();
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -140,15 +137,18 @@ public class Main {
         System.out.println("FirstCommit");
         Process process = null;
         try {
+            //Initialize the repo
             process = Runtime.getRuntime().exec("powershell."+os+" git init");
             process.waitFor();
             powershellReader(process);
             process = Runtime.getRuntime().exec("powershell."+os+" git add .");
             process.waitFor();
             powershellReader(process);
+            System.out.println("Hola");
             process = Runtime.getRuntime().exec("powershell."+os+" git remote add origin https://github.com/JD-Lora1/clinic-lab-flow-and-database.git");
             process.waitFor();
             powershellReader(process);
+
         } catch (IOException e) {
             e.printStackTrace();
         } catch (InterruptedException e) {
@@ -181,78 +181,37 @@ public class Main {
     }
 
     public static void backupCommand() throws IOException {
-        //Need to do commands for git init and add remote, etc, for the first time, and serialize when it
-        //be configured, as an 1 on a .txt
         String command1 = "powershell."+os+" git add DataBase.txt";
-        //String command1 = "git add DataBase.txt";
         String command2 = "powershell."+os+" git commit -m 'Backup: ";
-        //String command2 = "git commit -m 'Backup: ";
         String command3 = "powershell."+os+" git push";
-        //String command3 = "git push";
 
         // Execute the commands
         System.out.print("Backup ");
-        Process process1 = Runtime.getRuntime().exec(command1);
-        Process process2 = null;
-        Process process3 = null;
+        Process process = Runtime.getRuntime().exec(command1);
 
-        String nProcess ="";
+        int exitWhit = 0;
         try {
-            if (process1.waitFor() == 0 ){
-                System.out.print(".");
-                Date date = new Date();
-                process2 = Runtime.getRuntime().exec(command2+date+"'");
-                if (process2.waitFor() == 0 ){
-                    System.out.print(".");
-                    process3 = Runtime.getRuntime().exec(command3);
-                    System.out.print(".");
-                    if (process3.waitFor()== 0){
-                        System.out.println(" Done");
-                        System.out.println("See it on https://github.com/JD-Lora1/clinic-lab-flow-and-database/blob/main/DataBase.txt");
-                    }
-                    else if (nProcess.equals(""))
-                        nProcess = "process3";
-                }else if (nProcess.equals(""))
-                    nProcess = "process2";
-
-            }else
-                nProcess = "process1";
-
-            if (!nProcess.equals("")) {
-                Process process = null;
-                switch (nProcess){
-                    case "process1":
-                        process = process1;
-                        System.out.println("Incomplete\n");
-                        break;
-                    case "process2":
-                        process = process2;
-                        System.out.println(" - ");
-                        break;
-                    case "process3":
-                        process = process3;
-                        System.out.println("Incomplete\n");
-                        break;
-                }
-                BufferedReader buf = new BufferedReader(new InputStreamReader(process.getErrorStream()));
-                String line = "";
-                while ((line = buf.readLine()) != null) {
-                    System.out.println(line);
-                }
-
-                buf = new BufferedReader(new InputStreamReader(process.getInputStream()));
-                while ((line = buf.readLine()) != null) {
-                    System.out.println(line);
-                }
-                buf.close();
-            }
+            exitWhit = process.waitFor();
+            if (exitWhit==1)
+                throw new InterruptedException();
+            System.out.print(".");
+            Date date = new Date();
+            process = Runtime.getRuntime().exec(command2+date+"'");
+            exitWhit = process.waitFor();
+            if (exitWhit==1)
+                throw new InterruptedException();
+            System.out.print(".");
+            process = Runtime.getRuntime().exec(command3);
+            System.out.print(".");
+            exitWhit = process.waitFor();
+            if (exitWhit==1)
+                throw new InterruptedException();
+            System.out.println(" Done");
+            System.out.println("See it on https://github.com/JD-Lora1/clinic-lab-flow-and-database/blob/main/DataBase.txt");
 
         } catch (InterruptedException e) {
-            process1.destroy();
-            if (process2 != null)
-                process2.destroy();
-            if (process3 != null)
-                process3.destroy();
+            powershellReader(process);
+            process.destroy();
         }
     }
     private static ArrayList<String> gitLog() {
