@@ -173,7 +173,6 @@ public class Main {
             process = Runtime.getRuntime().exec(commandsTotal);
 
             if ((exitValue = process.waitFor())==1){
-                System.out.println("git init false");
                 powershellReader(process);
                 process.destroy();
             }
@@ -220,7 +219,7 @@ public class Main {
             e.printStackTrace();
         }
         System.out.println(". Done");
-        System.out.println("See it on https://github.com/JD-Lora1/clinic-lab-flow-and-database/blob/main/DataBase.txt");
+        System.out.println("See it on https://github.com/JD-Lora1/Clinic-DataBase-Backup");
     }
     private static ArrayList<String> gitLog() {
         String command1 = "powershell."+os+" cd " + databaseFile.replace("/DataBase.txt","")+
