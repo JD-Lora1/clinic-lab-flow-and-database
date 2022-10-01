@@ -78,7 +78,6 @@ public class Main {
                         ArrayList<File> myFiles = new ArrayList<>();
                         //myFiles.addAll(List.of(new File(databaseFile.replace("/DataBase.txt","")).listFiles()));
                         myFiles.addAll(List.of(new File(databaseFile).getParentFile().listFiles()));
-                        System.out.println(myFiles);
                         //TODO
                         // cant delete this file. data lost
                         //Verify if folder contains or not a .git folder
@@ -86,17 +85,10 @@ public class Main {
                             if (initializeGit()!=0)
                                 file.createNewFile();
                         }*/
-                        System.out.println("Rename");
-                        file.renameTo(new File(new File(databaseFile).getParent() + "/DB2"));
                         initializeGit();
-                        System.out.println("restore, rename");
-                        file.renameTo(new File(databaseFile));
-
                         writeJsonFile();
-                        if(false){
-
                         backupCommand();
-                        }
+
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -291,22 +283,17 @@ public class Main {
                 if (option.equalsIgnoreCase("Y")) {
                     //Git pull (get the latest remote version) or choose a specific commit
                     gitPull(file, "");
-                    // Load to Root on tree
-                    loadDataToRoot();
                 }
             }
-        }else {
-            // Load to Root on tree
-            loadDataToRoot();
         }
+        // Load to Root on tree
+        loadDataToRoot();
 
     }
 
     public static void gitPull(File file, String option){
         //Check if git was initialized
         ArrayList<File> myFiles = new ArrayList<>(List.of(new File(databaseFile).getParentFile().listFiles()));
-        //TODO
-        // if opt, git init (no data), or git init with data
         if (!myFiles.contains(new File(databaseFile.replace("/DataBase.txt","")+"/.git"))){
             initializeGit();
         }
