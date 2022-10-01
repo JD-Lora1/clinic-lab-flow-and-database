@@ -2,9 +2,7 @@ package ui;
 
 import model.*;
 
-//Gson Lib. To use Json
 import com.google.gson.Gson;
-
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Date;
@@ -14,21 +12,24 @@ import java.nio.charset.StandardCharsets;
 
 //TODO
 // Move some methods to Control
+// create a String datbaseParent (folder). database.getParentFile
 
 public class Main {
 
-    private static String databaseFilePath = "";
-    private static final String APPSTATE_DB_PATH = "appState/dataBase-Path.txt";
-    private static AVL_Tree avlTree;
-    private static Gson gson;
-    private static Scanner sc = new Scanner(System.in);
+    private static final String APPSTATE_DB_PATH = "appState/dataBase-Path.txt"; //File that contains the path of DataBase file
+    private static String databaseFile = " ";
     private static String os = "exe"; //Default OS, Windows
+    private static AVL_Tree avlTree; //Binary tree to save patients info
+    private static Gson gson; //To use Json
+    private static Scanner sc = new Scanner(System.in);
 
     public static void main(String[] args) {
         avlTree = new AVL_Tree();
         gson = new Gson();
-        //Start reading the local database file
-        databaseFilePath = readFile(APPSTATE_DB_PATH);
+
+        //Start reading the file that contains the path of database
+        databaseFile = readFile(APPSTATE_DB_PATH);
+        //Read Json. Deserialize, set data to Root's tree (and it children)
         readJsonFile();
         Control control = new Control();
 
@@ -49,48 +50,53 @@ public class Main {
                 case "1":
                     System.out.println("Please provide the id: ");
                     while (id == -1){
-                        try {
-                            id = Long.parseLong(sc.nextLine());
-                        }catch (NumberFormatException e){
-                            System.out.println("Please provide a valid id number: ");
-                        }
+                        id = readId(id);
                     }
                     Node foundNode = avlTree.findPatient(id);
                     if (foundNode!=null){
                         System.out.println("Found:");
                         System.out.println(foundNode.getPatient().toString());
                     }
-                    id = -1;
                     break;
                 case "2":
-                    System.out.println("Please provide the name: ");
+                    System.out.println("Please provide the full name: ");
                     String name = sc.nextLine();
                     System.out.println("Now, write the id: ");
                     while (id == -1){
-                        try {
-                            id = Long.parseLong(sc.nextLine());
-                        }catch (NumberFormatException e){
-                            System.out.println("Please provide a valid id number: ");
-                        }
+                        id = readId(id);
                     }
                     avlTree.insert(new Patient(name,id));
+
                     //Serialize the data locally
                     writeJsonFile();
                     break;
 
                 case "3":
-                    //Default OS: Windows(exe)
                     try {
-                        File file = new File(databaseFilePath);
+                        File file = new File(databaseFile);
+                        //List of files contained by the parent folder of databaseFile
                         ArrayList<File> myFiles = new ArrayList<>();
-                        myFiles.addAll(List.of(new File(databaseFilePath.replace("/DataBase.txt","")).listFiles()));
-                        if (!myFiles.contains(new File(databaseFilePath.replace("/DataBase.txt","")+"/.git"))){
-                            file.delete();
+                        //myFiles.addAll(List.of(new File(databaseFile.replace("/DataBase.txt","")).listFiles()));
+                        myFiles.addAll(List.of(new File(databaseFile).getParentFile().listFiles()));
+                        System.out.println(myFiles);
+                        //TODO
+                        // cant delete this file. data lost
+                        //Verify if folder contains or not a .git folder
+                        /*while (!myFiles.contains(new File(databaseFile.replace("/DataBase.txt","")+"/.git"))){
                             if (initializeGit()!=0)
                                 file.createNewFile();
-                        }
+                        }*/
+                        System.out.println("Rename");
+                        file.renameTo(new File(new File(databaseFile).getParent() + "/DB2"));
+                        initializeGit();
+                        System.out.println("restore, rename");
+                        file.renameTo(new File(databaseFile));
+
                         writeJsonFile();
+                        if(false){
+
                         backupCommand();
+                        }
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -98,7 +104,7 @@ public class Main {
                 case "4":
                     break;
                 case "5":
-                    gitGetCommit(new File(databaseFilePath));
+                    gitPull(new File(databaseFile), "commit");
                     loadDataToRoot();
 
             }
@@ -106,15 +112,15 @@ public class Main {
         sc.close();
     }
 
-    public static void loadDataToRoot(){
-        String json = readFile(databaseFilePath);
-        //Load the data on the AVL tree. BST
-        Node node = gson.fromJson(json, Node.class);
-        avlTree.setRoot(node);
-
-        writeJsonFile();
+    public static long readId(long id){
+        //Guarantee id is a number
+        try {
+            id = Long.parseLong(sc.nextLine());
+        }catch (NumberFormatException e){
+            System.out.println("Please provide a valid id number: ");
+        }
+        return id;
     }
-
     public static String readFile(String filePath) {
         String value = "";
         try {
@@ -130,12 +136,21 @@ public class Main {
             br.close();
 
             if (value==null)
-                value = "";
+                value = " ";
         } catch (IOException e) {
             e.printStackTrace();
         }
 
         return value;
+    }
+
+    public static void loadDataToRoot(){
+        String json = readFile(databaseFile);
+        //Load the data on the AVL tree. BST
+        Node node = gson.fromJson(json, Node.class);
+        avlTree.setRoot(node);
+
+        writeJsonFile();
     }
 
     public static void writeFiles(String filePath, String sWrite){
@@ -159,13 +174,14 @@ public class Main {
 
         try {
             //Initialize the repo
-            String commandsTotal = "powershell.exe cd "+databaseFilePath.replace("/DataBase.txt","")+"; git init"+
+            String commandsTotal = "powershell.exe cd "+ databaseFile.replace("/DataBase.txt","")+"; git init"+
                     "; git branch -M main"+
                     "; git remote add origin https://github.com/JD-Lora1/Clinic-DataBase-Backup.git -m main";
 
             process = Runtime.getRuntime().exec(commandsTotal);
 
             if ((exitValue = process.waitFor())==1){
+                System.out.println("git init false");
                 powershellReader(process);
                 process.destroy();
             }
@@ -199,7 +215,7 @@ public class Main {
     public static void backupCommand() throws IOException {
         Date date = new Date();
         System.out.print("Backup .");
-        String commandsTotal = "powershell.exe cd "+databaseFilePath.replace("/DataBase.txt","") +
+        String commandsTotal = "powershell.exe cd "+ databaseFile.replace("/DataBase.txt","") +
                 "; git add DataBase.txt"+
                 "; git commit -m 'Backup: "+date.toString()+"'"+
                 "; git push origin main";
@@ -215,7 +231,7 @@ public class Main {
         System.out.println("See it on https://github.com/JD-Lora1/clinic-lab-flow-and-database/blob/main/DataBase.txt");
     }
     private static ArrayList<String> gitLog() {
-        String command1 = "powershell."+os+" cd " +databaseFilePath.replace("/DataBase.txt","")+
+        String command1 = "powershell."+os+" cd " + databaseFile.replace("/DataBase.txt","")+
                 "; git log --graph --decorate --format=format:\'%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)\'";
         Process process1 = null;
         ArrayList<String> commits = new ArrayList<>();
@@ -244,7 +260,7 @@ public class Main {
     }
 
     public static void readJsonFile(){
-        File file = new File(databaseFilePath);
+        File file = new File(databaseFile);
         while (!file.exists()) {
             //Guarantee folder and file existence
             try {
@@ -254,9 +270,9 @@ public class Main {
                 if (file.isDirectory() && file.listFiles().length==0){
                     file = new File(xPath+"/DataBase.txt");
                     file.createNewFile();
-                    databaseFilePath = xPath+"/DataBase.txt";
+                    databaseFile = xPath+"/DataBase.txt";
                     System.out.println("DataBase.txt Created");
-                    writeFiles(APPSTATE_DB_PATH, databaseFilePath);
+                    writeFiles(APPSTATE_DB_PATH, databaseFile);
 
                 }else {
                     System.out.println("Invalid path directory/folder");
@@ -272,62 +288,70 @@ public class Main {
             while (!option.equalsIgnoreCase("Y") && !option.equalsIgnoreCase("N")) {
                 System.out.println("Do you wanna import the data from a remote DataBase?: Y/N");
                 option = sc.nextLine();
-                //Git pull (get the latest remote version) or choose a specific commit
-                gitGetCommit(file);
-            }
-        }
-        // Load to Root on tree
-        loadDataToRoot();
-    }
-
-    public static void gitGetCommit(File file){
-        int commit = -1;
-        ArrayList<String> commits = new ArrayList<>();
-
-        //Check if git was initialized
-        ArrayList<File> myFiles = new ArrayList<>(List.of(new File(databaseFilePath.replace("/DataBase.txt", "")).listFiles()));
-        try {
-            if (!myFiles.contains(new File(databaseFilePath.replace("/DataBase.txt","")+"/.git"))){
-                file.delete();
-                if (initializeGit()!=0)
-                    file.createNewFile();
-            }
-            readUrl("0"); //git pull basic, to log
-            System.out.println("Get the last version of DataBase.txt. Do you want to choose another one? Y/N ");
-            String option = "";
-
-            while (!option.equalsIgnoreCase("Y") && !option.equalsIgnoreCase("N")) {
-                option = sc.nextLine();
-                if (option.equalsIgnoreCase("Y")){
-                    while (commit==-1 || commit>commits.size()-1){
-                        System.out.println("Chose the hash's index of the backup which you want to import:");
-                        commits = gitLog();
-                        commit = Integer.parseInt(sc.nextLine());
-                    }
-                    readUrl(commits.get(commit));
+                if (option.equalsIgnoreCase("Y")) {
+                    //Git pull (get the latest remote version) or choose a specific commit
+                    gitPull(file, "");
+                    // Load to Root on tree
+                    loadDataToRoot();
                 }
             }
-        } catch (IOException e) {
-            e.printStackTrace();
+        }else {
+            // Load to Root on tree
+            loadDataToRoot();
         }
+
     }
 
-    public static void readUrl(String commit) {
-        //TODO
-        // if 0. Just pull
-        String command = "powershell."+os+" cd "+databaseFilePath.replace("/DataBase.txt","");
+    public static void gitPull(File file, String option){
+        //Check if git was initialized
+        ArrayList<File> myFiles = new ArrayList<>(List.of(new File(databaseFile).getParentFile().listFiles()));
+        if (!myFiles.contains(new File(databaseFile.replace("/DataBase.txt","")+"/.git"))){
+            initializeGit();
+        }
+
+        int exitValue = gitPullCommit("0"); //git pull basic, to log
+
+        if (option.equals("") && (exitValue==0)) {
+            System.out.println("Get the last version of DataBase.txt. Do you want to choose another one? Y/N ");
+            option = "";
+            while (!option.equalsIgnoreCase("Y") && !option.equalsIgnoreCase("N")) {
+                option = sc.nextLine();
+                if (option.equalsIgnoreCase("Y"))
+                    gitLogCommits();
+            }
+
+        }else if (exitValue==0)
+            gitLogCommits();
+
+    }
+
+    public static void gitLogCommits(){
+        ArrayList<String> commits = new ArrayList<>();
+        int commit = -1;
+
+        while (commit==-1 || commit>commits.size()-1){
+            System.out.println("Chose the hash's index of the backup which you want to import:");
+            commits = gitLog();
+            commit = Integer.parseInt(sc.nextLine());
+        }
+        gitPullCommit(commits.get(commit));
+    }
+
+    public static int gitPullCommit(String commit) {
+        int exitValue=1;
+        String command = "powershell."+os+" cd "+ databaseFile.replace("/DataBase.txt","");
         if (commit.equals("0")){
             command+="; git pull origin main";
         }else {
             System.out.print("Reading Data ");
-            command+= "; git checkout "+commit+" -- "+databaseFilePath;
+            command+= "; git checkout "+commit+" -- "+ databaseFile;
 
         }
 
         Process process = null;
         try {
             process = Runtime.getRuntime().exec(command);
-            if (process.waitFor()==1){
+            if ((exitValue = process.waitFor())==1){
                 powershellReader(process);
             }else {
                 System.out.println("Data Actualized with "+(commit.equals("0")? "Last":commit)+" commit");
@@ -336,17 +360,18 @@ public class Main {
             e.printStackTrace();
         }
 
+        return exitValue;
     }
 
     public static void writeJsonFile(){
-        File file = new File(databaseFilePath);
+        File file = new File(databaseFile);
         // Create file or delete its data
         try {
             if(!file.exists())
                 file.createNewFile();
             else{
                 //Cleaer data on DataBase.txt
-                new FileWriter(databaseFilePath, false).close();
+                new FileWriter(databaseFile, false).close();
             }
         } catch (IOException e) {
             e.printStackTrace();
