@@ -33,9 +33,6 @@ public class AVL_Tree {
     public int getHeight(Node node ) {
         return node == null ? -1 : node.height;
     }
-    public  int getBalance(Node n) {
-        return (n == null) ? 0 : getHeight(n.right) - getHeight(n.left);
-    }
     private Node rotateWithLeftChild(Node node2) {
         Node node1 = node2.left;
         node2.left = node1.right;

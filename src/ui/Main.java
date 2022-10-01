@@ -48,7 +48,7 @@ public class Main {
                     "\n 1.Search a patient" +
                     "\n 2.Add a new patient" +
                     "\n 3.Backup to Github" +
-                    "\n 4.Is the tree balanced?" +
+                    "\n 4.Delete Patient (On process)"+
                     "\n 0.Exit");
             opt = sc.nextLine();
             long id = -1;
@@ -93,19 +93,13 @@ public class Main {
                         if (fileAppState.length() == 0) {
                             writeFiles(APPSTATE_STATE, "git initialized remote");
                             initializeGit("remote");
-                            throw new IOException(); //TODO This is temporal
                         }
                         writeJsonFile();
-                        //TODO
-                        // THIS IS TEMPORAL
-                        initializeGit("remote");
-                        //backupCommand(); TODO This is temporal
+                        backupCommand();
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
                     break;
-                case "4": isBalance();
-                break;
             }
         }
         sc.close();
@@ -146,68 +140,29 @@ public class Main {
 
     public static void initializeGit(String opt){
         System.out.print("Initializing .");
-        ArrayList<String> commands = new ArrayList<>();
-        //commands.add("powershell."+os+" git init "+databaseFilePath.replace("/DataBase.txt",""));
-        commands.add("powershell."+os+" git init "+databaseFilePath.replace("/DataBase.txt",""));
         Process process = null;
 
         try {
             //Initialize the repo
+            String commandsTotal = "powershell.exe cd "+databaseFilePath.replace("/DataBase.txt","")+"; git init";
             if (opt.equals("init")){
-                commands.add("powershell."+os+" git pull");
+                commandsTotal +="; git pull";
             } else if (opt.equals("remote")) {
-                commands.add("powershell."+os+" git add .");
-                commands.add("powershell."+os+" git commit -m 'first commit'");
-                commands.add("powershell."+os+" git branch -M main");
-                commands.add("powershell."+os+" git remote add origin https://github.com/JD-Lora1/Clinic-DataBase-Backup.git");
-                commands.add("powershell."+os+" git push -u origin main");
+                commandsTotal+="; git branch -M main"+
+                        "; git remote add origin https://github.com/JD-Lora1/Clinic-DataBase-Backup.git";
             }
-            /*String commandsTotal = "powershell.exe cd "+databaseFilePath.replace("/DataBase.txt","")+" & git init" +
-                    " & git add ."+
-                    " & git commit -m 'first commit'"+
-                    " & git branch -M main"+
-                    " & git remote add origin https://github.com/JD-Lora1/Clinic-DataBase-Backup.git"+
-                    " & git push -u origin main";
 
             process = Runtime.getRuntime().exec(commandsTotal);
-            if (process.waitFor()==1)
-                powershellReader(process);*/
+            process.waitFor();
 
-
-            for (String command : commands){
-                process = Runtime.getRuntime().exec(command);
-                if (process.waitFor()==1)
-                    break;
-                System.out.print(".");
-            }
             if (process.exitValue()==1){
+                powershellReader(process);
                 process.destroy();
             }
-            else if (opt.equals("init")){
+            else {
                 writeFiles(APPSTATE_STATE, "Git initialized. ");
-            }else if (opt.equals("remote")){
-                writeFiles(APPSTATE_STATE, " - Remote added");
+                System.out.print(" 100%");
             }
-            System.out.print(" *");
-            /*process = Runtime.getRuntime().exec("powershell."+os+" git init");
-            process.waitFor();
-            System.out.print(".");
-            process = Runtime.getRuntime().exec("powershell."+os+" git add .");
-            process.waitFor();
-            System.out.print(".");
-            process = Runtime.getRuntime().exec("powershell."+os+" git commit -m 'first commit'");
-            process.waitFor();
-            System.out.print(".");
-            process = Runtime.getRuntime().exec("powershell."+os+" git branch -M main");
-            process.waitFor();
-            System.out.print(".");
-            process = Runtime.getRuntime().exec("powershell."+os+" git remote add origin https://github.com/JD-Lora1/Clinic-DataBase-Backup.git");
-            process.waitFor();
-            System.out.print(".");
-            process = Runtime.getRuntime().exec("powershell."+os+" git push -u origin main");
-            process.waitFor();
-            System.out.print(".");
-            System.out.print(". *");*/
         } catch (IOException e) {
             e.printStackTrace();
         } catch (InterruptedException e) {
@@ -217,12 +172,13 @@ public class Main {
     }
 
     public static void powershellReader(Process process) throws IOException {
+        //Read errors
         BufferedReader buf = new BufferedReader(new InputStreamReader(process.getErrorStream()));
         String line = "";
         while ((line = buf.readLine()) != null) {
             System.out.println(line);
         }
-
+        //Read console output
         buf = new BufferedReader(new InputStreamReader(process.getInputStream()));
         while ((line = buf.readLine()) != null) {
             System.out.println(line);
@@ -230,18 +186,26 @@ public class Main {
         buf.close();
     }
 
-    public static void isBalance(){
-        if (avlTree.getBalance(avlTree.getRoot())==0){
-            System.out.println("It´s balanced");
-        }else if (abs(avlTree.getBalance(avlTree.getRoot()))==1){
-            System.out.println("It's almost balanced");
-        }else {
-            System.out.println(">2");
-        }
-    }
-
     public static void backupCommand() throws IOException {
-        String command1 = "powershell."+os+" git add DataBase.txt";
+        Date date = new Date();
+        System.out.print("Backup ");
+        String commandsTotal = "powershell.exe cd "+databaseFilePath.replace("/DataBase.txt","") +
+                "; git add DataBase.txt"+
+                "; git commit -m 'Backup: "+date.toString()+"'"+
+                "; git push";
+        Process process = Runtime.getRuntime().exec(commandsTotal);
+        try {
+            process.waitFor();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        if (process.exitValue()==1){
+            process.destroy();
+        }
+            powershellReader(process);
+
+        /*String command1 = "powershell."+os+" git add DataBase.txt";
         String command2 = "powershell."+os+" git commit -m 'Backup: ";
         String command3 = "powershell."+os+" git push";
 
@@ -273,7 +237,7 @@ public class Main {
             System.out.println("");
             powershellReader(process);
             process.destroy();
-        }
+        }*/
     }
     private static ArrayList<String> gitLog() {
         String command1 = "powershell."+os+" git log --graph --decorate --format=format:\'%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)\'";
