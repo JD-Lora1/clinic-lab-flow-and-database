@@ -90,12 +90,16 @@ public class Main {
                     //Default OS: Windows(exe)
                     try {
                         File fileAppState = new File(APPSTATE_STATE);
-                        if (fileAppState.length()==0) {
+                        if (fileAppState.length() == 0) {
                             writeFiles(APPSTATE_STATE, "git initialized remote");
                             initializeGit("remote");
+                            throw new IOException(); //TODO This is temporal
                         }
                         writeJsonFile();
-                        backupCommand();
+                        //TODO
+                        // THIS IS TEMPORAL
+                        initializeGit("remote");
+                        //backupCommand(); TODO This is temporal
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -143,7 +147,8 @@ public class Main {
     public static void initializeGit(String opt){
         System.out.print("Initializing .");
         ArrayList<String> commands = new ArrayList<>();
-        commands.add("powershell."+os+" git init");
+        //commands.add("powershell."+os+" git init "+databaseFilePath.replace("/DataBase.txt",""));
+        commands.add("powershell."+os+" git init "+databaseFilePath.replace("/DataBase.txt",""));
         Process process = null;
 
         try {
@@ -157,16 +162,27 @@ public class Main {
                 commands.add("powershell."+os+" git remote add origin https://github.com/JD-Lora1/Clinic-DataBase-Backup.git");
                 commands.add("powershell."+os+" git push -u origin main");
             }
+            String commandsTotal = "powershell.exe cd "+databaseFilePath.replace("/DataBase.txt","")+" & git init" +
+                    " & git add ."+
+                    " & git commit -m 'first commit'"+
+                    " & git branch -M main"+
+                    " & git remote add origin https://github.com/JD-Lora1/Clinic-DataBase-Backup.git"+
+                    " & git push -u origin main";
 
-            for (String command : commands){
+            process = Runtime.getRuntime().exec(commandsTotal);
+            if (process.waitFor()==1)
+                powershellReader(process);
+
+
+            /*for (String command : commands){
                 process = Runtime.getRuntime().exec(command);
                 if (process.waitFor()==1)
                     break;
                 System.out.print(".");
-            }
-
-            if (process.exitValue()==1)
+            }*/
+            if (process.exitValue()==1){
                 process.destroy();
+            }
             else if (opt.equals("init")){
                 writeFiles(APPSTATE_STATE, "Git initialized. ");
             }else if (opt.equals("remote")){

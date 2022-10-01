@@ -1,1 +1,1 @@
-git initialized remote
+Git initialized. 
