@@ -305,8 +305,33 @@ public class Main {
     public static void gitPull(File file, String option){
         //Check if git was initialized
         ArrayList<File> myFiles = new ArrayList<>(List.of(new File(databaseFile).getParentFile().listFiles()));
+        //TODO
+        // if opt, git init (no data), or git init with data
         if (!myFiles.contains(new File(databaseFile.replace("/DataBase.txt","")+"/.git"))){
             initializeGit();
+        }
+
+        if (file.length()==0){
+            file.delete();
+        } else {
+            String opt = "";
+            try {
+                while (!opt.equals("1") && !opt.equals("2")){
+                    System.out.println("The current changes will be deleted. " +
+                            "\nPlease first do a commit. " +
+                            "Or delete data of the file. Choose: " +
+                            "\n1. Commit changes" +
+                            "\n2. Delete current data on file");
+                    opt = sc.nextLine();
+                    if (opt.equals("1"))
+                        backupCommand();
+                    else if (opt.equals("2"))
+                        file.delete();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
         }
 
         int exitValue = gitPullCommit("0"); //git pull basic, to log
