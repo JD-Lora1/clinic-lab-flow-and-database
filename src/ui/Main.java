@@ -345,7 +345,7 @@ public class Main {
             if(!file.exists())
                 file.createNewFile();
             else{
-                //Delete data on DataBase.txt
+                //Cleaer data on DataBase.txt
                 new FileWriter(databaseFilePath, false).close();
             }
         } catch (IOException e) {
