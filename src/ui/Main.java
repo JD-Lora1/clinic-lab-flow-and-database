@@ -162,7 +162,7 @@ public class Main {
                 commands.add("powershell."+os+" git remote add origin https://github.com/JD-Lora1/Clinic-DataBase-Backup.git");
                 commands.add("powershell."+os+" git push -u origin main");
             }
-            String commandsTotal = "powershell.exe cd "+databaseFilePath.replace("/DataBase.txt","")+" & git init" +
+            /*String commandsTotal = "powershell.exe cd "+databaseFilePath.replace("/DataBase.txt","")+" & git init" +
                     " & git add ."+
                     " & git commit -m 'first commit'"+
                     " & git branch -M main"+
@@ -171,15 +171,15 @@ public class Main {
 
             process = Runtime.getRuntime().exec(commandsTotal);
             if (process.waitFor()==1)
-                powershellReader(process);
+                powershellReader(process);*/
 
 
-            /*for (String command : commands){
+            for (String command : commands){
                 process = Runtime.getRuntime().exec(command);
                 if (process.waitFor()==1)
                     break;
                 System.out.print(".");
-            }*/
+            }
             if (process.exitValue()==1){
                 process.destroy();
             }
