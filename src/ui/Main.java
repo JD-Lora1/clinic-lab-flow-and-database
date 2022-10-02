@@ -78,8 +78,10 @@ public class Main {
                         ArrayList<File> myFiles = new ArrayList<>();
                         //myFiles.addAll(List.of(new File(databaseFile.replace("/DataBase.txt","")).listFiles()));
                         myFiles.addAll(List.of(new File(databaseFile).getParentFile().listFiles()));
+                        if (!myFiles.contains(new File(new File(databaseFile).getParent()+"/.git")) ){
+                            initializeGit();
+                        }
 
-                        initializeGit();
                         writeJsonFile();
                         backupCommand();
 
@@ -273,14 +275,14 @@ public class Main {
         System.out.print(".");
         try {
             //If there are errors, print them
-            if (process.waitFor()==1)
-                powershellReader(process);
+            process.waitFor();
             System.out.print(".");
         } catch (InterruptedException e) {
             e.printStackTrace();
+            process.destroy();
         }
         System.out.println(". Done");
-        System.out.println("See it on https://github.com/JD-Lora1/Clinic-DataBase-Backup");
+        powershellReader(process);
     }
     private static ArrayList<String> gitLog() {
         String command1 = "powershell."+os+" cd " + databaseFile.replace("/DataBase.txt","")+
@@ -320,7 +322,7 @@ public class Main {
             initializeGit();
         }
 
-        //If file is empty, delete to do a git pull
+        //If file is empty, delete it to do a git pull
         if (file.length()==0){
             file.delete();
         } else {
