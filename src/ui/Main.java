@@ -80,6 +80,10 @@ public class Main {
                 case "5":
                     control.gitPull(new File(control.databaseFile), "commit");
                     control.loadDataToRoot();
+                    break;
+                case "6":
+                    control.factoryReset();
+                    break;
             }
         }
         sc.close();

@@ -91,11 +91,13 @@ public class Control {
                         myFiles.get(0).renameTo(new File(databaseFile));
                         System.out.println("File renamed as DataBase.txt");
                     }else {
-                        System.out.println("Same");
+                        System.out.println("DataBase.txt accepted");
                     }
                     writeFiles(APPSTATE_DB_PATH, databaseFile);
                     break;
+
                 }else {
+                    file = new File("");
                     System.out.println("The folder should be empty or just with the DataBase.txt file");
                 }
 
@@ -123,10 +125,12 @@ public class Control {
 
     // Read Json on the .txt file and Loads Data
     public void loadDataToRoot(){
-        String json = readFile(databaseFile);
-        //Load the data on the AVL tree. BST
-        Node node = gson.fromJson(json, Node.class);
-        avlTree.setRoot(node);
+        if (new File(databaseFile).exists()) {
+            String json = readFile(databaseFile);
+            //Load the data on the AVL tree. BST
+            Node node = gson.fromJson(json, Node.class);
+            avlTree.setRoot(node);
+        }
     }
 
     public void writeJsonFile(){
@@ -269,10 +273,15 @@ public class Control {
         }
 
         //If file is empty, delete it to do a git pull
+        File tempFile = null;
         if (file.length()==0){
+            tempFile = new File(databaseFile.replace("/DataBase.txt","")+"/~DB_TempFile.txt");
+            file.renameTo(tempFile);
             file.delete();
+
         } else {
             String opt = "";
+
             try {
                 while (!opt.equals("1") && !opt.equals("2")){
                     System.out.println("The current changes will be deleted. " +
@@ -283,8 +292,11 @@ public class Control {
                     opt = sc.nextLine();
                     if (opt.equals("1"))
                         backupCommand();
-                    else if (opt.equals("2"))
+                    else if (opt.equals("2")){
+                        tempFile = new File(databaseFile.replace("/DataBase.txt","")+"/~DB_TempFile.txt");
+                        file.renameTo(tempFile);
                         file.delete();
+                    }
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -294,7 +306,7 @@ public class Control {
 
         int exitValue = gitPullCommit("0"); //git pull basic. Charge the latest version, and brings log to local
 
-        //If gitPull finalized whitout errors (exitvalue=0) and option is "" (User dont ask to get another commit directly)
+        //If gitPull finalized without errors (exit value = 0) and option is "" (User doesn't ask to get another commit directly)
         if (option.equals("") && (exitValue==0)) {
             System.out.println("Get the last version of DataBase.txt. Do you want to choose another one? Y/N ");
             option = "";
@@ -305,9 +317,14 @@ public class Control {
             }
 
         }
-        //User asks to get an specific commit
-        else if (exitValue==0)
+        //User asks to get a specific commit
+        else if (exitValue==0){
             gitLogCommits();
+        }
+
+        if(tempFile !=null && !tempFile.renameTo(new File(databaseFile))){
+            tempFile.delete();
+        }
 
     }
 
@@ -326,13 +343,13 @@ public class Control {
 
     //Restore the given commit latest/specific one
     public int gitPullCommit(String commit) {
-        int exitValue=1;
+        int exitValue = 0;
         String command = "powershell."+os+" cd "+ databaseFile.replace("/DataBase.txt","");
         //Get the latest commit and the log
         if (commit.equals("0"))
             command+="; git pull origin main";
 
-            //Get a specific commit by its hash
+        //Get a specific commit by its hash
         else {
             System.out.print("Reading Data ");
             command+= "; git checkout "+commit+" -- "+ databaseFile;
@@ -341,14 +358,19 @@ public class Control {
         Process process = null;
         try {
             process = Runtime.getRuntime().exec(command);
-            if ((exitValue = process.waitFor())==1){
-                powershellReader(process);
+            if((exitValue = process.waitFor())==0){
+                System.out.println("\nData Actualized with "+(commit.equals("0")? "Last":commit)+" commit");
+                if(new File(databaseFile).length() == 0)
+                    System.out.println("The data of the "+(commit.equals("0")? "last":commit)+" Backup was empty" +
+                            "\nSee it on: https://github.com/JD-Lora1/Clinic-DataBase-Backup");
             }else {
-                System.out.println("\nData Actualized with "+(commit.equals("0")? "Last":commit)+" commit\n");
+                powershellReader(process);
             }
+
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
+
         return exitValue;
     }
 
@@ -367,5 +389,15 @@ public class Control {
     public void addPatient(String name, long id){
         avlTree.insert(new Patient(name,id));
         System.out.println("Patient added");
+    }
+
+    // Advanced options
+    public void factoryReset(){
+        File file = new File(APPSTATE_DB_PATH);
+        try {
+            new FileWriter(APPSTATE_DB_PATH, false).close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
