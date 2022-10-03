@@ -2,8 +2,12 @@
 ### Juan Diego Lora - 1002821657 <br>IDE: Intellij
 ## Program Flow
 First start reading the file where is the path of the DataBase.txt (Give by the user)<br>
-If file doesn't exist then ask for that filepath where you want to store the Patient's Data.
-Then create the DataBase.txt file, and writes that path in the file appState/dataBase-Path.txt<br>
+If file doesn't exist then ask for that filepath where you want to store the Patient's Data or where it has already been created.
+
+* If the folder given doesn't contain any file, then create the DataBase.txt file.
+* Else, check if the folder just contains the DataBase file to read, and rename it to DataBase.txt without loss data<br>
+
+Finally, in both cases writes the path of that folder in the file appState/dataBase-Path.txt<br>
 
 When the file is empty the program asks user whether them want to restore a backup (Stored on another repo: https://github.com/JD-Lora1/Clinic-DataBase-Backup)
 
