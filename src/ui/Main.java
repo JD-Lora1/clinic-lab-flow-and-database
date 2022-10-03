@@ -10,6 +10,11 @@ import java.util.Scanner;
 
 public class Main {
 
+    //ToDo
+    // Create a submenu, with the options categorized:
+    // Patients{search,add,delete}
+    // Github{Backup, restore Backup}
+    // Advanced options{Fatory reset(clear data such as on dataBase-Path.txt, or set Windows OS by default)
     private static Scanner sc = new Scanner(System.in);
 
     public static void main(String[] args) {
@@ -25,7 +30,8 @@ public class Main {
                     "\n 2.Add a new patient" +
                     "\n 3.Backup to Github" +
                     "\n 4.Delete Patient (On process)"+
-                    "\n 5.Restore a backup of DataBase"+
+                    "\n 5.Restore a backup of DataBase" +
+                    "\n 6.Factory RESET"+
                     "\n 0.Exit");
             opt = sc.nextLine();
             long id = -1;

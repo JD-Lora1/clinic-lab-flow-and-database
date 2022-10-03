@@ -59,11 +59,10 @@ public class Control {
     // Check if DataBase file exist. And calls loadDataToRoot()
     public void createDataBase(){
         File file = new File(databaseFile);
-        boolean condition = false;
-        while (!file.exists() || !condition) {
+        while (!file.exists()) {
             //Guarantee folder and file existence
             try {
-                //The path works with normal slash (/) or reverted slash (\) but seems not always with the last one
+                //The path works with normal slash (/) or reverted slash (\), but seems not always with the last one
                 System.out.println("-> Write the full path of the folder where you want to create your DataBase file" +
                         "\nor where it has already been created");
                 String xPath = sc.nextLine();
@@ -75,6 +74,7 @@ public class Control {
                     System.out.println("Invalid path. Choose another one");
                     if (file.isFile())
                         System.out.println("Expected: Directory  |  Given: File");
+                    file = new File("");
                     continue;
                 }
 
@@ -84,13 +84,17 @@ public class Control {
                     databaseFile = xPath+"/DataBase.txt";
                     System.out.println("DataBase.txt Created");
                     writeFiles(APPSTATE_DB_PATH, databaseFile);
-                    condition = true;
+                    break;
                 }else if(myFiles.size()==1 && myFiles.get(0).isFile()){
                     databaseFile = xPath+"/DataBase.txt";
-                    myFiles.get(0).renameTo(new File(databaseFile));
-                    System.out.println("File renamed as DataBase.txt");
+                    if (!myFiles.get(0).equals(new File(databaseFile))){
+                        myFiles.get(0).renameTo(new File(databaseFile));
+                        System.out.println("File renamed as DataBase.txt");
+                    }else {
+                        System.out.println("Same");
+                    }
                     writeFiles(APPSTATE_DB_PATH, databaseFile);
-                    condition = true;
+                    break;
                 }else {
                     System.out.println("The folder should be empty or just with the DataBase.txt file");
                 }
