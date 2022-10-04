@@ -78,7 +78,7 @@ public class Main {
                 case "4":
                     break;
                 case "5":
-                    control.gitPull(new File(control.databaseFile), "commit");
+                    control.gitPull(new File(control.databaseFile), "commit"); //second option. Direct option
                     control.loadDataToRoot();
                     break;
                 case "6":

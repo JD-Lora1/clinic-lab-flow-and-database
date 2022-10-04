@@ -78,25 +78,52 @@ public class Control {
                     continue;
                 }
 
-                if (myFiles.size()==0){
-                    file = new File(xPath+"/DataBase.txt");
-                    file.createNewFile();
-                    databaseFile = xPath+"/DataBase.txt";
-                    System.out.println("DataBase.txt Created");
-                    writeFiles(APPSTATE_DB_PATH, databaseFile);
-                    break;
-                }else if(myFiles.size()==1 && myFiles.get(0).isFile()){
-                    databaseFile = xPath+"/DataBase.txt";
-                    if (!myFiles.get(0).equals(new File(databaseFile))){
-                        myFiles.get(0).renameTo(new File(databaseFile));
-                        System.out.println("File renamed as DataBase.txt");
+                if (myFiles.size()<=2){
+                    if (myFiles.size()==0){
+                        file = new File(xPath+"/DataBase.txt");
+                        file.createNewFile();
+                        databaseFile = xPath+"/DataBase.txt";
+                        System.out.println("DataBase.txt Created");
+                        writeFiles(APPSTATE_DB_PATH, databaseFile);
+                        break;
                     }else {
-                        System.out.println("DataBase.txt accepted");
-                    }
-                    writeFiles(APPSTATE_DB_PATH, databaseFile);
-                    break;
+                        int index = -1; //to know in which position is the txt file
 
-                }else {
+                        if (myFiles.size()==1){ //size == 1
+                            //Check if just contains a .txt file
+                            if (myFiles.get(0).isFile() && myFiles.get(0).getName().endsWith(".txt"))
+                                index = 0;
+                        }
+                        else { //size==2
+                            //Check if contains a .txt file
+                            if (myFiles.get(0).isFile() && myFiles.get(0).getName().endsWith(".txt")){
+                                index = 0;
+                            }else if (myFiles.get(1).isFile() && myFiles.get(1).getName().endsWith(".txt"))
+                                index = 1;
+
+                            //Check if also contains a .git folder
+                            if (index==0 && myFiles.get(1).isDirectory() && myFiles.get(1).getName().equals(".git"))
+                                index = 0;
+                            else if (index == 1 && myFiles.get(0).isDirectory() && myFiles.get(0).getName().equals(".git"))
+                                index = 1;
+                            else
+                                index = -1;
+                        }
+
+                        if(index!=-1) {
+                            databaseFile = xPath + "/DataBase.txt";
+                            if (!myFiles.get(index).getAbsolutePath().equals(databaseFile.replace("/","\\"))) {
+                                myFiles.get(index).renameTo(new File(databaseFile));
+                                System.out.println("File renamed as DataBase.txt");
+                            } else
+                                System.out.println("DataBase.txt accepted");
+
+                            writeFiles(APPSTATE_DB_PATH, databaseFile);
+                        }
+                        break;
+                    }
+                }
+                else {
                     file = new File("");
                     System.out.println("The folder should be empty or just with the DataBase.txt file");
                 }
@@ -110,7 +137,7 @@ public class Control {
             System.out.println("The local DataBase seems empty");
             String option = "";
             while (!option.equalsIgnoreCase("Y") && !option.equalsIgnoreCase("N")) {
-                System.out.println("Do you wanna import the data from a remote DataBase?: Y/N");
+                System.out.println("Do you want to import the data from a remote DataBase?: Y/N");
                 option = sc.nextLine();
                 if (option.equalsIgnoreCase("Y")) {
                     //Git pull (get the latest remote version) or choose a specific commit
@@ -273,6 +300,11 @@ public class Control {
         }
 
         //If file is empty, delete it to do a git pull
+        // TODO
+        //  seems doesn't read the file, bc its trowing an error with the git. (untrackeed files, overwritten, aborting)
+        //  an error that should be avoided by the "else"
+        //  es como si me estuviera diciendo que file.legnt == 0, porque no se ejecuta el else, pero tampoco lo q está dentro del if(o maybe si, pero no se esta eliminadno)
+        //  talvez no se está ejecutando este methodo?
         File tempFile = null;
         if (file.length()==0){
             tempFile = new File(databaseFile.replace("/DataBase.txt","")+"/~DB_TempFile.txt");
