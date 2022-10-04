@@ -19,17 +19,16 @@ public class Main {
 
     public static void main(String[] args) {
         Control control = new Control();
-
-        control.start();
+        control.start(); // Initialize the file. Read the data
 
         //menu
         String opt = "";
         while (!opt.equals("0")){
-            System.out.println("\nChoose an option:" +
+            System.out.println("Choose an option:" +
                     "\n 1.Search a patient" +
                     "\n 2.Add a new patient" +
-                    "\n 3.Backup to Github" +
-                    "\n 4.Delete Patient (On process)"+
+                    "\n 3.Delete Patient (On process)"+
+                    "\n 4.Create a backup locally and to Github" +
                     "\n 5.Restore a backup of DataBase" +
                     "\n 6.Factory RESET"+
                     "\n 0.Exit");
@@ -38,16 +37,17 @@ public class Main {
 
             switch (opt){
                 case "1":
-                    System.out.println("Please provide the id: ");
+                    System.out.print("Please provide the id: ");
                     while (id == -1){
                         id = readId(id);
                     }
                     control.findPatient(id);
+                    System.out.println("");
                     break;
                 case "2":
-                    System.out.println("Please provide the full name: ");
+                    System.out.print("Please provide the full name: ");
                     String name = sc.nextLine();
-                    System.out.println("Now, write the id: ");
+                    System.out.print("Now, write the id: ");
                     while (id == -1){
                         id = readId(id);
                     }
@@ -55,9 +55,15 @@ public class Main {
 
                     //Serialize the data locally
                     control.writeJsonFile();
+                    System.out.println("");
                     break;
-
                 case "3":
+                    //Find it, then delete it
+                    //Serialize the data locally
+                    control.writeJsonFile();
+                    System.out.println("");
+                    break;
+                case "4":
                     try {
                         File file = new File(control.databasePath);
                         //List of files contained by the parent folder of databaseFile
@@ -74,12 +80,12 @@ public class Main {
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                    break;
-                case "4":
+                    System.out.println("");
                     break;
                 case "5":
                     control.gitPull(new File(control.databasePath), "commit"); //second option. Direct option
                     control.loadDataToRoot();
+                    System.out.println("");
                     break;
                 case "6":
                     control.factoryReset();
@@ -96,7 +102,7 @@ public class Main {
         try {
             id = Long.parseLong(sc.nextLine());
         }catch (NumberFormatException e){
-            System.out.println("Please provide a valid id number: ");
+            System.out.print("Please provide a valid id number: ");
         }
         return id;
     }

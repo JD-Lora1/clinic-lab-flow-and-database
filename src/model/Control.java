@@ -13,8 +13,6 @@ import java.util.Scanner;
 
 public class Control {
 
-    //TODO
-    // create a String datbaseParent (folder). database.getParentFile
     public final String APPSTATE_DB_PATH = "appState/dataBase-Path.txt"; //File that contains the path of DataBase file
     public String databasePath = " ";
     public String databaseParent = " ";
@@ -29,11 +27,13 @@ public class Control {
     }
 
     public void start(){
-        //Start reading the file that contains the path of database
+        //Start reading the file that contains the path of database, also get the value to its parent folder
         databasePath = readFile(APPSTATE_DB_PATH);
         databaseParent = new File(databasePath).getParent();
-        //Read Json. Deserialize, set data to Root's tree (and it children)
+        //Check if file exists, else create it
         createDataBase();
+        //Read Json. Deserialize, set data to Root's tree (and it children)
+        loadDataToRoot();
     }
 
 
@@ -62,11 +62,13 @@ public class Control {
 
     // Check if DataBase file exist. And calls loadDataToRoot()
     public void createDataBase(){
-        File file = null;
+        File file = new File(databasePath);
+        if (!file.exists()){
+            file = null;
+        }
         while (file==null) {
             //Guarantee folder and file existence
             try {
-                //The path works with normal slash (/) or reverted slash (\), but seems not always with the last one
                 System.out.println("-> Write the full path of the folder where you want to create your DataBase file" +
                         "\nor where it has already been created");
                 String xPath = sc.nextLine();
@@ -108,11 +110,11 @@ public class Control {
                                 index = 1;
 
                             //Check if also contains a .git folder
-                            if (index==0 && myFiles.get(1).isDirectory() && myFiles.get(1).getName().equals(".git"))
-                                index = 0;
-                            else if (index == 1 && myFiles.get(0).isDirectory() && myFiles.get(0).getName().equals(".git"))
-                                index = 1;
-                            else
+                            if (index==0 && myFiles.get(1).isDirectory() && myFiles.get(1).getName().equals(".git")) {
+                                index=0;
+                            }else if (index == 1 && myFiles.get(0).isDirectory() && myFiles.get(0).getName().equals(".git")) {
+                                index=1;
+                            }else
                                 index = -1;
                         }
 
@@ -319,10 +321,11 @@ public class Control {
         //  an error that should be avoided by the "else"
         //  es como si me estuviera diciendo que file.legnt == 0, porque no se ejecuta el else, pero tampoco lo q está dentro del if(o maybe si, pero no se esta eliminadno)
         //  talvez no se está ejecutando este methodo?
+
+        //TOdo : I think is solved
         //If file is empty, delete it to do a git pull
         File tempFile = null;
         if (file.length()==0){
-            // Todo, revisar
             //Move data to tempfile, and delete oldFile.
             try {
                 tempFile = new File(databaseParent,"~DB_TempFile.txt");
@@ -373,8 +376,17 @@ public class Control {
             gitLogCommits();
         }
 
-        if(tempFile !=null && !tempFile.renameTo(new File(databasePath))){
-            tempFile.delete();
+        if (tempFile != null) {
+            if (file.exists())
+                tempFile.delete();
+            else {
+                try {
+                    Path oldFile = tempFile.toPath();
+                    Files.move(oldFile, oldFile.resolveSibling(file.getAbsolutePath()));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
 
     }
@@ -439,7 +451,6 @@ public class Control {
 
     public void addPatient(String name, long id){
         avlTree.insert(new Patient(name,id));
-        System.out.println("Patient added");
     }
 
     // Advanced options

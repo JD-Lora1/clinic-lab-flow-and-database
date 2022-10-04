@@ -7,8 +7,10 @@ public class AVL_Tree {
         root = insert(patient, root);
     }
     private Node insert(Patient patient, Node node) {
-        if (node == null)
+        if (node == null) {
             node = new Node(patient);
+            System.out.println("Patient added");
+        }
         else if (patient.getId() < node.getPatient().getId()) {
             node.left = insert( patient, node.left );
             if( getHeight( node.left ) - getHeight( node.right ) == 2 ) {
@@ -20,11 +22,14 @@ public class AVL_Tree {
         }
         else if (patient.getId() > node.getPatient().getId()) {
             node.right = insert( patient, node.right );
-            if( getHeight( node.right ) - getHeight( node.left ) == 2 )
-                if( patient.getId() > node.right.getPatient().getId())
-                    node = rotateWithRightChild( node );
+            if( getHeight( node.right ) - getHeight( node.left ) == 2 ) {
+                if (patient.getId() > node.right.getPatient().getId())
+                    node = rotateWithRightChild(node);
                 else
-                    node = doubleWithRightChild( node );
+                    node = doubleWithRightChild(node);
+            }
+        }else {
+            System.out.println("This id already exists");
         }
         node.height = Math.max( getHeight(node.left), getHeight( node.right) ) + 1;
         return node;
