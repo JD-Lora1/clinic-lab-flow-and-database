@@ -59,12 +59,12 @@ public class Main {
 
                 case "3":
                     try {
-                        File file = new File(control.databaseFile);
+                        File file = new File(control.databasePath);
                         //List of files contained by the parent folder of databaseFile
                         ArrayList<File> myFiles = new ArrayList<>();
                         //myFiles.addAll(List.of(new File(databaseFile.replace("/DataBase.txt","")).listFiles()));
-                        myFiles.addAll(List.of(new File(control.databaseFile).getParentFile().listFiles()));
-                        if (!myFiles.contains(new File(new File(control.databaseFile).getParent()+"/.git")) ){
+                        myFiles.addAll(List.of(new File(control.databasePath).getParentFile().listFiles()));
+                        if (!myFiles.contains(new File(new File(control.databasePath).getParent()+"/.git")) ){
                             control.initializeGit();
                         }
 
@@ -78,11 +78,13 @@ public class Main {
                 case "4":
                     break;
                 case "5":
-                    control.gitPull(new File(control.databaseFile), "commit"); //second option. Direct option
+                    control.gitPull(new File(control.databasePath), "commit"); //second option. Direct option
                     control.loadDataToRoot();
                     break;
                 case "6":
                     control.factoryReset();
+                    System.out.println("Done");
+                    opt="0";
                     break;
             }
         }

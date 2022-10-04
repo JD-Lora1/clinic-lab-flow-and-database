@@ -4,6 +4,8 @@ import com.google.gson.Gson;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -14,7 +16,8 @@ public class Control {
     //TODO
     // create a String datbaseParent (folder). database.getParentFile
     public final String APPSTATE_DB_PATH = "appState/dataBase-Path.txt"; //File that contains the path of DataBase file
-    public String databaseFile = " ";
+    public String databasePath = " ";
+    public String databaseParent = " ";
     public String os = "exe"; //Default OS: Windows
     public AVL_Tree avlTree; //Binary tree to save patients info
     public Gson gson; //To use Json
@@ -27,7 +30,8 @@ public class Control {
 
     public void start(){
         //Start reading the file that contains the path of database
-        databaseFile = readFile(APPSTATE_DB_PATH);
+        databasePath = readFile(APPSTATE_DB_PATH);
+        databaseParent = new File(databasePath).getParent();
         //Read Json. Deserialize, set data to Root's tree (and it children)
         createDataBase();
     }
@@ -58,8 +62,8 @@ public class Control {
 
     // Check if DataBase file exist. And calls loadDataToRoot()
     public void createDataBase(){
-        File file = new File(databaseFile);
-        while (!file.exists()) {
+        File file = null;
+        while (file==null) {
             //Guarantee folder and file existence
             try {
                 //The path works with normal slash (/) or reverted slash (\), but seems not always with the last one
@@ -67,6 +71,7 @@ public class Control {
                         "\nor where it has already been created");
                 String xPath = sc.nextLine();
                 file = new File(xPath);
+                databaseParent = file.getAbsolutePath();
                 ArrayList<File> myFiles;
                 try {
                     myFiles = new ArrayList<>(List.of(file.listFiles()));
@@ -74,17 +79,18 @@ public class Control {
                     System.out.println("Invalid path. Choose another one");
                     if (file.isFile())
                         System.out.println("Expected: Directory  |  Given: File");
-                    file = new File("");
+                    file = null;
+                    databaseParent = null;
                     continue;
                 }
 
                 if (myFiles.size()<=2){
                     if (myFiles.size()==0){
-                        file = new File(xPath+"/DataBase.txt");
+                        file = new File(xPath, "DataBase.txt");
+                        databasePath = file.getAbsolutePath();
                         file.createNewFile();
-                        databaseFile = xPath+"/DataBase.txt";
                         System.out.println("DataBase.txt Created");
-                        writeFiles(APPSTATE_DB_PATH, databaseFile);
+                        writeFiles(APPSTATE_DB_PATH, databasePath);
                         break;
                     }else {
                         int index = -1; //to know in which position is the txt file
@@ -111,23 +117,31 @@ public class Control {
                         }
 
                         if(index!=-1) {
-                            databaseFile = xPath + "/DataBase.txt";
-                            if (!myFiles.get(index).getAbsolutePath().equals(databaseFile.replace("/","\\"))) {
-                                myFiles.get(index).renameTo(new File(databaseFile));
+                            file = new File(xPath, "DataBase.txt");
+                            databasePath = file.getAbsolutePath();
+
+                            if (!myFiles.get(index).getAbsolutePath().equals(databasePath)) {
+                                //Move data to file, and delete oldFile.
+                                Path oldFile = myFiles.get(index).toPath();
+                                Files.move(oldFile, oldFile.resolveSibling(databasePath));
                                 System.out.println("File renamed as DataBase.txt");
                             } else
                                 System.out.println("DataBase.txt accepted");
 
-                            writeFiles(APPSTATE_DB_PATH, databaseFile);
+                            writeFiles(APPSTATE_DB_PATH, databasePath);
+                            break;
+                        }else {
+                            file = null;
+                            databaseParent = null;
+                            System.out.println("The folder should be empty; just with the DataBase.txt file or with that file and the .git folder");
                         }
-                        break;
                     }
                 }
                 else {
-                    file = new File("");
-                    System.out.println("The folder should be empty or just with the DataBase.txt file");
+                    file = null;
+                    databaseParent = null;
+                    System.out.println("The folder should be empty; just with the DataBase.txt file or with that file and the .git folder");
                 }
-
             }catch (IOException e) {
                 e.printStackTrace();
             }
@@ -152,8 +166,8 @@ public class Control {
 
     // Read Json on the .txt file and Loads Data
     public void loadDataToRoot(){
-        if (new File(databaseFile).exists()) {
-            String json = readFile(databaseFile);
+        if (new File(databasePath).exists()) {
+            String json = readFile(databasePath);
             //Load the data on the AVL tree. BST
             Node node = gson.fromJson(json, Node.class);
             avlTree.setRoot(node);
@@ -161,14 +175,14 @@ public class Control {
     }
 
     public void writeJsonFile(){
-        File file = new File(databaseFile);
+        File file = new File(databasePath);
         // Create file or delete its data
         try {
             if(!file.exists())
                 file.createNewFile();
             else{
                 //Clear data on DataBase.txt To Overwrite
-                new FileWriter(databaseFile, false).close();
+                new FileWriter(databasePath, false).close();
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -207,9 +221,10 @@ public class Control {
         System.out.print(".");
         try {
             //Initialize the repo
-            String commandsTotal = "powershell.exe cd "+ databaseFile.replace("/DataBase.txt","")+"; git init"+
+            String commandsTotal = "powershell.exe cd "+ databaseParent+"; git init"+
                     "; git branch -M main"+
-                    "; git remote add origin https://github.com/JD-Lora1/Clinic-DataBase-Backup.git -m main";
+                    "; git remote add origin https://github.com/JD-Lora1/Clinic-DataBase-Backup.git -m main" +"";
+                    //"; git add DataBase.txt";
 
             process = Runtime.getRuntime().exec(commandsTotal);
             System.out.print(".");
@@ -243,7 +258,7 @@ public class Control {
     public void backupCommand() throws IOException {
         Date date = new Date();
         System.out.print("Backup .");
-        String commandsTotal = "powershell.exe cd "+ databaseFile.replace("/DataBase.txt","") +
+        String commandsTotal = "powershell.exe cd "+ databaseParent +
                 "; git add DataBase.txt"+
                 "; git commit -m 'Backup: "+date.toString()+"'"+
                 "; git push origin main";
@@ -262,7 +277,7 @@ public class Control {
         powershellReader(process);
     }
     private ArrayList<String> gitLog() {
-        String command1 = "powershell."+os+" cd " + databaseFile.replace("/DataBase.txt","")+
+        String command1 = "powershell."+os+" cd " + databaseParent +
                 "; git log --graph --decorate --format=format:\'%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)\'";
         Process process = null;
         ArrayList<String> commits = new ArrayList<>();
@@ -294,22 +309,28 @@ public class Control {
 
     public void gitPull(File file, String option){
         //Check if git was initialized
-        ArrayList<File> myFiles = new ArrayList<>(List.of(new File(databaseFile).getParentFile().listFiles()));
-        if (!myFiles.contains(new File(databaseFile.replace("/DataBase.txt","")+"/.git"))){
+        ArrayList<File> myFiles = new ArrayList<>(List.of(new File(databasePath).getParentFile().listFiles()));
+        if (!myFiles.contains(new File(databaseParent, ".git"))){
             initializeGit();
         }
 
-        //If file is empty, delete it to do a git pull
         // TODO
         //  seems doesn't read the file, bc its trowing an error with the git. (untrackeed files, overwritten, aborting)
         //  an error that should be avoided by the "else"
         //  es como si me estuviera diciendo que file.legnt == 0, porque no se ejecuta el else, pero tampoco lo q está dentro del if(o maybe si, pero no se esta eliminadno)
         //  talvez no se está ejecutando este methodo?
+        //If file is empty, delete it to do a git pull
         File tempFile = null;
         if (file.length()==0){
-            tempFile = new File(databaseFile.replace("/DataBase.txt","")+"/~DB_TempFile.txt");
-            file.renameTo(tempFile);
-            file.delete();
+            // Todo, revisar
+            //Move data to tempfile, and delete oldFile.
+            try {
+                tempFile = new File(databaseParent,"~DB_TempFile.txt");
+                Path oldFile = file.toPath();
+                Files.move(oldFile, oldFile.resolveSibling(tempFile.getAbsolutePath()));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
 
         } else {
             String opt = "";
@@ -325,7 +346,7 @@ public class Control {
                     if (opt.equals("1"))
                         backupCommand();
                     else if (opt.equals("2")){
-                        tempFile = new File(databaseFile.replace("/DataBase.txt","")+"/~DB_TempFile.txt");
+                        tempFile = new File(databaseParent+"/~DB_TempFile.txt");
                         file.renameTo(tempFile);
                         file.delete();
                     }
@@ -341,20 +362,18 @@ public class Control {
         //If gitPull finalized without errors (exit value = 0) and option is "" (User doesn't ask to get another commit directly)
         if (option.equals("") && (exitValue==0)) {
             System.out.println("Get the last version of DataBase.txt. Do you want to choose another one? Y/N ");
-            option = "";
             while (!option.equalsIgnoreCase("Y") && !option.equalsIgnoreCase("N")) {
                 option = sc.nextLine();
                 if (option.equalsIgnoreCase("Y"))
                     gitLogCommits();
             }
-
         }
         //User asks to get a specific commit
         else if (exitValue==0){
             gitLogCommits();
         }
 
-        if(tempFile !=null && !tempFile.renameTo(new File(databaseFile))){
+        if(tempFile !=null && !tempFile.renameTo(new File(databasePath))){
             tempFile.delete();
         }
 
@@ -376,7 +395,7 @@ public class Control {
     //Restore the given commit latest/specific one
     public int gitPullCommit(String commit) {
         int exitValue = 0;
-        String command = "powershell."+os+" cd "+ databaseFile.replace("/DataBase.txt","");
+        String command = "powershell."+os+" cd "+ databaseParent;
         //Get the latest commit and the log
         if (commit.equals("0"))
             command+="; git pull origin main";
@@ -384,7 +403,7 @@ public class Control {
         //Get a specific commit by its hash
         else {
             System.out.print("Reading Data ");
-            command+= "; git checkout "+commit+" -- "+ databaseFile;
+            command+= "; git checkout "+commit+" -- "+ databasePath;
         }
 
         Process process = null;
@@ -392,7 +411,7 @@ public class Control {
             process = Runtime.getRuntime().exec(command);
             if((exitValue = process.waitFor())==0){
                 System.out.println("\nData Actualized with "+(commit.equals("0")? "Last":commit)+" commit");
-                if(new File(databaseFile).length() == 0)
+                if(new File(databasePath).length() == 0)
                     System.out.println("The data of the "+(commit.equals("0")? "last":commit)+" Backup was empty" +
                             "\nSee it on: https://github.com/JD-Lora1/Clinic-DataBase-Backup");
             }else {
