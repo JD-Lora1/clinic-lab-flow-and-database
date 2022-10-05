@@ -25,8 +25,7 @@ public class Patient {
         this.id = id;
     }
 
-    @Override
-    public String toString() {
+    public String showData(){
         return "ID: "+id+", Name: "+name;
     }
 }

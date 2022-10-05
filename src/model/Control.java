@@ -443,7 +443,7 @@ public class Control {
         Node foundNode = avlTree.findPatient(id);
         if (foundNode!=null){
             System.out.println("Found:");
-            System.out.println(foundNode.getPatient().toString());
+            System.out.println(foundNode.getPatient().showData());
         }else {
             System.out.println("Not Found:");
         }
