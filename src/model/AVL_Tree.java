@@ -11,19 +11,19 @@ public class AVL_Tree {
             node = new Node(patient);
             System.out.println("Patient added");
         }
-        else if (patient.getId() < node.getPatient().getId()) {
+        else if (patient.getId().compareTo(node.getPatient().getId()) < 0) {
             node.left = insert( patient, node.left );
             if( getHeight( node.left ) - getHeight( node.right ) == 2 ) {
-                if (patient.getId() < node.left.getPatient().getId())
+                if (patient.getId().compareTo(node.left.getPatient().getId()) < 0)
                     node = rotateWithLeftChild(node);
                 else
                     node = doubleWithLeftChild(node);
             }
         }
-        else if (patient.getId() > node.getPatient().getId()) {
+        else if (patient.getId().compareTo(node.getPatient().getId()) > 0) {
             node.right = insert( patient, node.right );
             if( getHeight( node.right ) - getHeight( node.left ) == 2 ) {
-                if (patient.getId() > node.right.getPatient().getId())
+                if (patient.getId().compareTo(node.right.getPatient().getId()) > 0)
                     node = rotateWithRightChild(node);
                 else
                     node = doubleWithRightChild(node);
@@ -68,29 +68,29 @@ public class AVL_Tree {
         return rotateWithRightChild( k1 );
     }
 
-    public Node findPatient(long id){
+    public Node findPatient(String id){
         return findPatient(id, root);
     }
 
-    private Node findPatient(long value, Node current){
+    private Node findPatient(String value, Node current){
         if(current == null){
             return null;
-        }else if(current.getPatient().getId() == value){
+        }else if(current.getPatient().getId().equals(value)){
             return current;
-        } else if (value > current.getPatient().getId()) {
+        } else if (value.compareTo(current.getPatient().getId()) > 0) {
             return findPatient(value, current.right);
         } else {
             return findPatient(value, current.left);
         }
     }
-    public Node delete(int id){
+    public Node delete(String id){
         return delete(id, root);
     }
-    private Node delete(long goal, Node current){
+    private Node delete(String goal, Node current){
         if(current == null){
             return null;
         }
-        if(current.getPatient().getId() == goal){
+        if(current.getPatient().getId().equals(goal)){
             //1. Nodo Hoja
             if(current.left == null && current.right == null){
                 if(current == root)
@@ -113,7 +113,7 @@ public class AVL_Tree {
                 return current;
             }
 
-        }else if(goal < current.getPatient().getId()){
+        }else if(goal.compareTo(current.getPatient().getId()) < 0){
             Node subArbolIzquierdo = delete(goal, current.left);
             current.left = (subArbolIzquierdo);
         }else{

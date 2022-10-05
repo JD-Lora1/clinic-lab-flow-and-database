@@ -33,12 +33,12 @@ public class Main {
                     "\n 6.Factory RESET"+
                     "\n 0.Exit");
             opt = sc.nextLine();
-            long id = -1;
+            String  id = "";
 
             switch (opt){
                 case "1":
                     System.out.print("Please provide the id: ");
-                    while (id == -1){
+                    while (id.equals("")){
                         id = readId(id);
                     }
                     control.findPatient(id);
@@ -48,7 +48,7 @@ public class Main {
                     System.out.print("Please provide the full name: ");
                     String name = sc.nextLine();
                     System.out.print("Now, write the id: ");
-                    while (id == -1){
+                    while (id.equals("")){
                         id = readId(id);
                     }
                     control.addPatient(name,id);
@@ -97,10 +97,12 @@ public class Main {
         sc.close();
     }
 
-    public static long readId(long id){
+    public static String readId(String id){
         //Guarantee id is a number
+        Long longId;
         try {
-            id = Long.parseLong(sc.nextLine());
+            longId = Long.parseLong(sc.nextLine());
+            id = longId.toString();
         }catch (NumberFormatException e){
             System.out.print("Please provide a valid id number: ");
         }
