@@ -1,5 +1,5 @@
 # Clinic Laboratory
-### Juan Diego Lora - 1002821657 <br>Jeison Lasprilla: A00380415 <br>Santiago Prado A00365113
+### Juan Diego Lora - 1002821657 <br>Jeison Lasprilla - A00380415 <br>Santiago Prado - A00365113
 ### IDE: Intellij
 ## Program Flow
 First start reading the file where is the path of the DataBase.txt (Give by the user)<br>
