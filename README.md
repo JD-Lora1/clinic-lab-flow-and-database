@@ -1,5 +1,6 @@
 # Clinic Laboratory
-### Juan Diego Lora - 1002821657 <br>IDE: Intellij
+### Juan Diego Lora - 1002821657 <br>Jeison Lasprilla: A00380415 <br>Santiago Prado A00365113
+### IDE: Intellij
 ## Program Flow
 First start reading the file where is the path of the DataBase.txt (Give by the user)<br>
 If file doesn't exist then ask for that filepath where you want to store the Patient's Data or where it has already been created.
