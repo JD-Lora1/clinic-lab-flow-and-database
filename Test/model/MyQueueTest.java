@@ -2,8 +2,6 @@ package model;
 
 import org.junit.jupiter.api.Test;
 
-import java.awt.*;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 class MyQueueTest {
@@ -33,13 +31,8 @@ class MyQueueTest {
     @Test
     public void enqueuePriorityQueueTest(){
         priority = setup1();
-        assertEquals("Juan", priority.top().getPatient().getName());
-    }
-
-    @Test
-    public void enqueueSecondaryQueueTest(){
-        secondary = setup2();
-        assertEquals("Otro Juan", secondary.top().getPatient().getName());
+        Patient p1 = (Patient) priority.top().getValue();
+        assertEquals("Juan",p1.getName());
     }
 
     @Test

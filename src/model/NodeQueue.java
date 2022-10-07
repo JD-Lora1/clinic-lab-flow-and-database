@@ -1,12 +1,12 @@
 package model;
 
-public class NodeQueue {
+public class NodeQueue<T> {
     //Values
-    private Patient patient;
+    private T value;
     private NodeQueue next;
 
-    public NodeQueue(Patient patient) {
-        this.patient = patient;
+    public NodeQueue(T value) {
+        this.value = value;
     }
 
     public NodeQueue getNext() {
@@ -17,11 +17,11 @@ public class NodeQueue {
         this.next = next;
     }
 
-    public Patient getPatient() {
-        return patient;
+    public T getValue() {
+        return value;
     }
 
-    public void setPatient(Patient patient) {
-        this.patient = patient;
+    public void setValue(T value) {
+        this.value = value;
     }
 }
