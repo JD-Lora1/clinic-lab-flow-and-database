@@ -6,10 +6,7 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 public class Control {
 
@@ -20,9 +17,11 @@ public class Control {
     public AVL_Tree avlTree; //Binary tree to save patients info
     public Gson gson; //To use Json
     private Scanner sc = new Scanner(System.in);
+    public StackUndo<String, Class> undoHistory = new StackUndo<>();
+    public PriorityQueue queue;
 
-    public Control(){
-        avlTree = new AVL_Tree();
+    public Control(Comparator comparator){
+        avlTree = new AVL_Tree(comparator);
         gson = new Gson();
     }
 
@@ -92,7 +91,8 @@ public class Control {
                         databasePath = file.getAbsolutePath();
                         file.createNewFile();
                         System.out.println("DataBase.txt Created");
-                        writeFiles(APPSTATE_DB_PATH, databasePath);
+                        //Todo
+                        // writeFiles(APPSTATE_DB_PATH, databasePath);
                         break;
                     }else {
                         int index = -1; //to know in which position is the txt file
@@ -130,7 +130,8 @@ public class Control {
                             } else
                                 System.out.println("DataBase.txt accepted");
 
-                            writeFiles(APPSTATE_DB_PATH, databasePath);
+                            //todo
+                            // writeFiles(APPSTATE_DB_PATH, databasePath);
                             break;
                         }else {
                             file = null;
@@ -311,18 +312,11 @@ public class Control {
 
     public void gitPull(File file, String option){
         //Check if git was initialized
-        ArrayList<File> myFiles = new ArrayList<>(List.of(new File(databasePath).getParentFile().listFiles()));
+        ArrayList<File> myFiles = new ArrayList<>(List.of(new File(databaseParent).listFiles()));
         if (!myFiles.contains(new File(databaseParent, ".git"))){
             initializeGit();
         }
 
-        // TODO
-        //  seems doesn't read the file, bc its trowing an error with the git. (untrackeed files, overwritten, aborting)
-        //  an error that should be avoided by the "else"
-        //  es como si me estuviera diciendo que file.legnt == 0, porque no se ejecuta el else, pero tampoco lo q está dentro del if(o maybe si, pero no se esta eliminadno)
-        //  talvez no se está ejecutando este methodo?
-
-        //TOdo : I think is solved
         //If file is empty, delete it to do a git pull
         File tempFile = null;
         if (file.length()==0){
@@ -460,6 +454,28 @@ public class Control {
             new FileWriter(APPSTATE_DB_PATH, false).close();
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    public void undo(){
+        NodeHistory lastChange = undoHistory.pop();
+        String json = (String) lastChange.getValue();
+        Class theClass = (Class) lastChange.getaClass();
+
+        if (theClass.equals(Node.class)){
+            Node node = gson.fromJson(json, Node.class);
+            avlTree.setRoot(node);
+        }else if (theClass.equals(NodeQueue.class)){ //Node Queue
+            NodeQueue nodeQueue = gson.fromJson(json, NodeQueue.class);
+            //queue.setHead(nodeQueue);
+        }
+    }
+
+    public void addNodeHistorial(Class aClass){
+        if (aClass.equals(AVL_Tree.class)) {
+            String json = gson.toJson(avlTree.getRoot());
+        } else if (aClass.equals(PriorityQueue.class)) {
+            String json = gson.toJson(queue);
         }
     }
 }

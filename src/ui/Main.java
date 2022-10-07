@@ -1,24 +1,29 @@
 package ui;
 
+import Comparators.CompareByID;
+import model.AVL_Tree;
 import model.Control;
+import model.Patient;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Scanner;
 
 public class Main {
 
-    //ToDo
+    //toDo
     // Create a submenu, with the options categorized:
     // Patients{search,add,delete}
     // Github{Backup, restore Backup}
-    // Advanced options{Fatory reset(clear data such as on dataBase-Path.txt, or set Windows OS by default)
+    // Advanced options{Factory reset(clear data such as on dataBase-Path.txt, or set Windows OS by default)
     private static Scanner sc = new Scanner(System.in);
 
     public static void main(String[] args) {
-        Control control = new Control();
+        Comparator<Patient> comparator = new CompareByID();
+        Control control = new Control(comparator);
         control.start(); // Initialize the file. Read the data
 
         //menu
@@ -31,6 +36,8 @@ public class Main {
                     "\n 4.Create a backup locally and to Github" +
                     "\n 5.Restore a backup of DataBase" +
                     "\n 6.Factory RESET"+
+                    "\n 7.Save/Serialize" +
+                    "\n 8.Undo" +
                     "\n 0.Exit");
             opt = sc.nextLine();
             String  id = "";
@@ -52,15 +59,14 @@ public class Main {
                         id = readId(id);
                     }
                     control.addPatient(name,id);
-
-                    //Serialize the data locally
-                    control.writeJsonFile();
+                    control.addNodeHistorial(AVL_Tree.class);
+                    //Serialize the data at the end of the program
                     System.out.println("");
                     break;
                 case "3":
                     //Find it, then delete it
-                    //Serialize the data locally
-                    control.writeJsonFile();
+
+                    //Serialize the data at the end of the program
                     System.out.println("");
                     break;
                 case "4":
@@ -92,8 +98,17 @@ public class Main {
                     System.out.println("Done");
                     opt="0";
                     break;
+                case "7":
+                    control.writeJsonFile();
+                    System.out.println("Serialized");
+                    break;
+                case "8":
+                    //Undo
+                    control.undo();
+                    System.out.println("Undone");
             }
         }
+        control.writeJsonFile();
         sc.close();
     }
 

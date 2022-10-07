@@ -1,4 +1,6 @@
-package model;
+package Comparators;
+
+import model.Patient;
 
 import java.util.Comparator;
 

@@ -1,7 +1,14 @@
 package model;
 
+import java.util.Comparator;
+
 public class AVL_Tree {
     private Node root;
+    private Comparator comparator;
+
+    public AVL_Tree(Comparator comparator) {
+        this.comparator = comparator;
+    }
 
     public void insert(Patient patient){
         root = insert(patient, root);
@@ -11,19 +18,19 @@ public class AVL_Tree {
             node = new Node(patient);
             System.out.println("Patient added");
         }
-        else if (patient.getId().compareTo(node.getPatient().getId()) < 0) {
+        else if (comparator.compare(patient,node.getPatient()) < 0) {
             node.left = insert( patient, node.left );
             if( getHeight( node.left ) - getHeight( node.right ) == 2 ) {
-                if (patient.getId().compareTo(node.left.getPatient().getId()) < 0)
+                if (comparator.compare(patient,node.getPatient()) < 0)
                     node = rotateWithLeftChild(node);
                 else
                     node = doubleWithLeftChild(node);
             }
         }
-        else if (patient.getId().compareTo(node.getPatient().getId()) > 0) {
+        else if (comparator.compare(patient,node.getPatient()) > 0) {
             node.right = insert( patient, node.right );
             if( getHeight( node.right ) - getHeight( node.left ) == 2 ) {
-                if (patient.getId().compareTo(node.right.getPatient().getId()) > 0)
+                if (comparator.compare(patient,node.getPatient()) > 0)
                     node = rotateWithRightChild(node);
                 else
                     node = doubleWithRightChild(node);
@@ -108,17 +115,14 @@ public class AVL_Tree {
                 Node min = findLeft(current.right);
                 current.getPatient().setId(min.getPatient().getId());
                 //Hacer eliminación a partir de la derecha
-                Node subarbolDER = delete(min.getPatient().getId(), current.right);
-                current.right = ( subarbolDER );
+                current.right = (delete(min.getPatient().getId(), current.right));
                 return current;
             }
 
         }else if(goal.compareTo(current.getPatient().getId()) < 0){
-            Node subArbolIzquierdo = delete(goal, current.left);
-            current.left = (subArbolIzquierdo);
+            current.left = (delete(goal, current.left)); //Subtree left
         }else{
-            Node subArbolDerecho = delete(goal, current.right);
-            current.right = (subArbolDerecho);
+            current.right = (delete(goal, current.right)); //Subtree right
         }
         return current;
     }

@@ -3,10 +3,18 @@ package model;
 public class Patient {
     private String name;
     private String id;
+    private int age;
+    private boolean isPriority;
 
     public Patient(String name, String id) {
         this.name = name;
         this.id = id;
+    }
+    public Patient(String name, String id,int age,boolean isPriority) {
+        this.name = name;
+        this.id = id;
+        this.age=age;
+        this.isPriority=isPriority;
     }
 
     public String getName() {
@@ -23,6 +31,22 @@ public class Patient {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public int getAge() {
+        return age;
+    }
+
+    public void setAge(int age) {
+        this.age = age;
+    }
+
+    public boolean isPriority() {
+        return isPriority;
+    }
+
+    public void setPriority(boolean priority) {
+        isPriority = priority;
     }
 
     public String showData(){
