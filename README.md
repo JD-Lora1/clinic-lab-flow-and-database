@@ -30,4 +30,4 @@ If the file isn't empty, ask for delete or backup the changes.
 <br>
 ### Note:
 Methods which involves git commands, execute those commands over PowerShell (which is available to Windows, Mac an Linux)<br>
-If you want to use them, be sure you have installed Powershell
+If you want to use them, be sure you have installed Powershell.
