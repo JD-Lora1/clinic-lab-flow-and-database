@@ -1,6 +1,6 @@
 package model;
 
-public class MyQueue {
+public class MyQueue<T>implements  IQueue<T>{
 
     private NodeQueue head;
     private NodeQueue tail;
@@ -16,11 +16,11 @@ public class MyQueue {
     }
 
 
-    public NodeQueue dequeue() {
+    public T dequeue() {
         if (head == null) {
             return null;
         }else{
-            NodeQueue out = head;
+            T out = (T)head.getValue();
             head = head.getNext();
 
             return out;
