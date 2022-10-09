@@ -129,8 +129,7 @@ public class Control {
                             } else
                                 System.out.println("DataBase.txt accepted");
 
-                            //todo
-                            // writeFiles(APPSTATE_DB_PATH, databasePath);
+                            writeFiles(APPSTATE_DB_PATH, databasePath);
                             break;
                         }else {
                             file = null;
