@@ -17,7 +17,7 @@ public class Control {
     public AVL_Tree avlTree; //Binary tree to save patients info
     public Gson gson; //To use Json
     private Scanner sc = new Scanner(System.in);
-    public StackUndo<String, Class> undoHistory = new StackUndo<>();
+    public StackUndo<String> undoHistory = new StackUndo<>();
     public PriorityQueue queue;
 
     public Control(Comparator comparator){

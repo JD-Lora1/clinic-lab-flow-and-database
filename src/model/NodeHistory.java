@@ -1,7 +1,7 @@
 package model;
 
-public class NodeHistory <T, Class>{
-    private NodeHistory<T, Class> next;
+public class NodeHistory <T>{
+    private NodeHistory<T> next;
     private T value;
     private Class aClass;
 
@@ -13,11 +13,11 @@ public class NodeHistory <T, Class>{
         this.aClass = aClass;
     }
 
-    public NodeHistory<T, Class> getNext() {
+    public NodeHistory<T> getNext() {
         return next;
     }
 
-    public void setNext(NodeHistory<T, Class> next) {
+    public void setNext(NodeHistory<T> next) {
         this.next = next;
     }
 

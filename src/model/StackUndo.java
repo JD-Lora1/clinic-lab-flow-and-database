@@ -2,15 +2,15 @@ package model;
 
 import java.util.EmptyStackException;
 
-public class StackUndo <T, Class> implements IStack<T, Class> {
-    private NodeHistory<T, Class> head;
+public class StackUndo <T> implements IStack<T> {
+    private NodeHistory<T> head;
 
     public StackUndo(){
     }
 
     @Override
     public void push(T element, Class aClass) {
-        NodeHistory<T, Class> current = new NodeHistory<>();
+        NodeHistory<T> current = new NodeHistory<>();
         if (head==null){
             head = new NodeHistory<>(element, aClass);
         }else {
