@@ -59,7 +59,7 @@ public class Main {
                         id = readId(id);
                     }
                     control.addPatient(name,id);
-                    control.addNodeHistorial(AVL_Tree.class);
+                    control.addNodeHistory(AVL_Tree.class);
                     //Serialize the data at the end of the program
                     System.out.println("");
                     break;

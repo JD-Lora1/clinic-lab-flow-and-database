@@ -18,11 +18,12 @@ public class Control {
     public Gson gson; //To use Json
     private Scanner sc = new Scanner(System.in);
     public StackUndo<String> undoHistory = new StackUndo<>();
-    public PriorityQueue queue;
+    public MyQueue queue;
 
     public Control(Comparator comparator){
         avlTree = new AVL_Tree(comparator);
         gson = new Gson();
+        undoHistory.push("",PriorityQueue.class);
     }
 
     public void start(){
@@ -456,7 +457,10 @@ public class Control {
     }
 
     public void undo(){
-        NodeHistory lastChange = undoHistory.pop();
+        undoHistory.pop();
+        NodeHistory lastChange;
+        lastChange = undoHistory.pop();
+
         String json = (String) lastChange.getValue();
         Class theClass = (Class) lastChange.getaClass();
 
@@ -465,15 +469,18 @@ public class Control {
             avlTree.setRoot(node);
         }else if (theClass.equals(NodeQueue.class)){ //Node Queue
             NodeQueue nodeQueue = gson.fromJson(json, NodeQueue.class);
-            //queue.setHead(nodeQueue);
+            queue.setHead(nodeQueue);
         }
     }
 
-    public void addNodeHistorial(Class aClass){
+    public void addNodeHistory(Class aClass){
+        String json;
         if (aClass.equals(AVL_Tree.class)) {
-            String json = gson.toJson(avlTree.getRoot());
+            json = gson.toJson(avlTree.getRoot());
+            undoHistory.push(json,AVL_Tree.class);
         } else if (aClass.equals(PriorityQueue.class)) {
-            String json = gson.toJson(queue);
+            json = gson.toJson(queue);
+            undoHistory.push(json,PriorityQueue.class);
         }
     }
 }
