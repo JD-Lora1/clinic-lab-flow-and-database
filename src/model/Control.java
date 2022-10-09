@@ -91,8 +91,7 @@ public class Control {
                         databasePath = file.getAbsolutePath();
                         file.createNewFile();
                         System.out.println("DataBase.txt Created");
-                        //Todo
-                        // writeFiles(APPSTATE_DB_PATH, databasePath);
+                        writeFiles(APPSTATE_DB_PATH, databasePath);
                         break;
                     }else {
                         int index = -1; //to know in which position is the txt file
