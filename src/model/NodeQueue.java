@@ -4,6 +4,7 @@ public class NodeQueue<T> {
     //Values
     private T value;
     private NodeQueue next;
+    private NodeQueue prev;
 
     public NodeQueue(T value) {
         this.value = value;
@@ -15,6 +16,14 @@ public class NodeQueue<T> {
 
     public void setNext(NodeQueue next) {
         this.next = next;
+    }
+
+    public NodeQueue getPrev() {
+        return prev;
+    }
+
+    public void setPrev(NodeQueue prev) {
+        this.prev = prev;
     }
 
     public T getValue() {

@@ -1,6 +1,6 @@
 package model;
 
-public class MyQueue<T>implements  IQueue<T>{
+public class MyQueue<T> implements  IQueue<T>{
 
     private NodeQueue head;
     private NodeQueue tail;
@@ -9,8 +9,11 @@ public class MyQueue<T>implements  IQueue<T>{
         if (head == null) {
             head = node;
         }else{
-            tail.setNext(node);
-            tail.setNext(node);
+            if (head == tail){
+                head.setNext(tail);
+            } else{
+                tail.setNext(node);
+            }
         }
         tail = node;
     }
@@ -24,6 +27,26 @@ public class MyQueue<T>implements  IQueue<T>{
             head = head.getNext();
 
             return out;
+        }
+    }
+
+    public void undoEnqueue(){
+        if (tail.getPrev()==null){
+            //Just one node on the queue;
+            head = null;
+        }else {
+            tail = tail.getPrev();
+            tail.setNext(null);
+        }
+    }
+    public void undoDequeue(NodeQueue node){
+        if (head!=null) {
+            node.setNext(head);
+            head.setPrev(node);
+            head = node;
+        }else {
+            head = node;
+            tail = node;
         }
     }
 

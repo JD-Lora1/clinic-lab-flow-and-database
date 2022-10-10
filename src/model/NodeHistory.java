@@ -1,39 +1,49 @@
 package model;
 
-public class NodeHistory <T>{
-    private NodeHistory<T> next;
-    private T value;
-    private Class aClass;
+public class NodeHistory <T, H>{
+    private NodeHistory<T, H> next;
+    private T nodeTvalue;
+    private H nodeHvalue;
+    private String actionT;
 
     public NodeHistory() {
     }
 
-    public NodeHistory(T value, Class aClass) {
-        this.value = value;
-        this.aClass = aClass;
+    public NodeHistory(T nodeTvalue, H nodeHvalue, String actionT) {
+        this.nodeTvalue = nodeTvalue;
+        this.nodeHvalue = nodeHvalue;
+        this.actionT = actionT;
     }
 
-    public NodeHistory<T> getNext() {
+    public NodeHistory<T,H> getNext() {
         return next;
     }
 
-    public void setNext(NodeHistory<T> next) {
+    public void setNext(NodeHistory<T, H> next) {
         this.next = next;
     }
 
-    public T getValue() {
-        return value;
+    public T getNodeTvalue() {
+        return nodeTvalue;
     }
 
-    public void setValue(T value) {
-        this.value = value;
+    public void setNodeTvalue(T nodeTvalue) {
+        this.nodeTvalue = nodeTvalue;
     }
 
-    public Class getaClass() {
-        return aClass;
+    public H getNodeHvalue() {
+        return nodeHvalue;
     }
 
-    public void setaClass(Class aClass) {
-        this.aClass = aClass;
+    public void setNodeHvalue(H nodeHvalue) {
+        this.nodeHvalue = nodeHvalue;
+    }
+
+    public String getActionT() {
+        return actionT;
+    }
+
+    public void setActionT(String actionT) {
+        this.actionT = actionT;
     }
 }

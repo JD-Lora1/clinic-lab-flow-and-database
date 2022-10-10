@@ -2,22 +2,23 @@ package model;
 
 import java.util.EmptyStackException;
 
-public class StackUndo <T> implements IStack<T> {
-    private NodeHistory<T> head;
+public class StackUndo <T,H> implements IStack<T, H> {
+    private NodeHistory<T, H> head;
 
     public StackUndo(){
     }
 
     @Override
-    public void push(T element, Class aClass) {
-        NodeHistory<T> current = new NodeHistory<>();
+    public void push(T elementT, H elementH, String actionT) {
+        NodeHistory<T, H> current = new NodeHistory<>();
         if (head==null){
-            head = new NodeHistory<>(element, aClass);
+            head = new NodeHistory<>(elementT, elementH, actionT);
         }else {
             current.setNext(head);
             head = current;
-            current.setValue(element);
-            current.setaClass(aClass);
+            current.setNodeTvalue(elementT);
+            current.setNodeHvalue(elementH);
+            current.setActionT(actionT);
         }
     }
 

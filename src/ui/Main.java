@@ -58,15 +58,23 @@ public class Main {
                     while (id.equals("")){
                         id = readId(id);
                     }
-                    control.addPatient(name,id);
-                    control.addNodeHistory(AVL_Tree.class);
-                    //Serialize the data at the end of the program
+                    control.addNodeHistory(control.addPatient(name,id), null,"Insert AVL-Node");
+                    //Serialize the data
+                    control.writeJsonFile();
                     System.out.println("");
                     break;
                 case "3":
                     //Find it, then delete it
+                    System.out.print("Write the id: ");
+                    while (id.equals("")){
+                        id = readId(id);
+                    }
+                    //control.addNodeHistory(control.avlTree.delete(id), null,"Insert AVL-Node");
+                    //TODO
+                    // Make delete method works with AVL trees
 
-                    //Serialize the data at the end of the program
+                    //Serialize the data
+                    control.writeJsonFile();
                     System.out.println("");
                     break;
                 case "4":
@@ -105,7 +113,7 @@ public class Main {
                 case "8":
                     //Undo
                     control.undo();
-                    System.out.println("Undone");
+                    control.writeJsonFile();
             }
         }
         control.writeJsonFile();

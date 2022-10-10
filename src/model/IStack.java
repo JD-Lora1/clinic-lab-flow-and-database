@@ -1,8 +1,8 @@
 package model;
 
-public interface IStack <T>{
+public interface IStack <T, H>{
 
-    public void push(T element, Class aClass);
+    public void push(T elementT, H elementH, String actionT);
     public NodeHistory pop();
     public NodeHistory peek();
     public boolean isEmpty();

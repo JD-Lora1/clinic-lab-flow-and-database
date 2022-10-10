@@ -10,8 +10,8 @@ public class AVL_Tree {
         this.comparator = comparator;
     }
 
-    public void insert(Patient patient){
-        root = insert(patient, root);
+    public Node insert(Patient patient){
+        return root = insert(patient, root);
     }
     private Node insert(Patient patient, Node node) {
         if (node == null) {

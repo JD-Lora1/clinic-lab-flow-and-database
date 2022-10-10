@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class StackUndoTest {
 
-    private StackUndo<String> stackUndo;
+    private StackUndo<Node, NodeQueue> stackUndo;
 
     public void setup1(){
         stackUndo = new StackUndo<>();
@@ -14,22 +14,24 @@ class StackUndoTest {
 
     public void setup2(){
         setup1();
-        stackUndo.push("JsonElementNodeQueue-format", NodeQueue.class);
-        stackUndo.push("JsonElementAVltree-format", AVL_Tree.class);
+        stackUndo.push( new Node(new Patient("PatientFirst","0")), null,"Insert AVL-Node");
+        stackUndo.push( new Node(new Patient("patientLast","2")), null,"Insert AVL-Node");
     }
 
     @Test
     void push() {
-        setup1();
-        stackUndo.push("JsonElementNodeQueue-format", NodeQueue.class);
-        assertEquals(stackUndo.peek().getValue(), "JsonElementNodeQueue-format");
+        setup2();
+        stackUndo.push( new Node(new Patient("lastOne","3")), null,"Insert AVL-Node");
+        Node node = (Node) stackUndo.peek().getNodeTvalue();
+        assertEquals(node.getPatient().getId(), "3");
     }
 
     @Test
     void pop() {
         setup2();
         assertEquals(stackUndo.peek(), stackUndo.pop());
-        assertEquals("JsonElementNodeQueue-format", stackUndo.peek().getValue());
+        Node nodet = (Node) stackUndo.peek().getNodeTvalue();
+        assertEquals("PatientFirst", nodet.getPatient().getName());
     }
 
     @Test

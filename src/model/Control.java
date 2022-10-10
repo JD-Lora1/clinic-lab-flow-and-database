@@ -17,13 +17,13 @@ public class Control {
     public AVL_Tree avlTree; //Binary tree to save patients info
     public Gson gson; //To use Json
     private Scanner sc = new Scanner(System.in);
-    public StackUndo<String> undoHistory = new StackUndo<>();
+    public StackUndo<Node, NodeQueue<Patient> >  undoHistory;
     public MyQueue queue;
 
     public Control(Comparator comparator){
         avlTree = new AVL_Tree(comparator);
         gson = new Gson();
-        undoHistory.push("",PriorityQueue.class);
+        undoHistory = new StackUndo<>();
     }
 
     public void start(){
@@ -442,8 +442,8 @@ public class Control {
         }
     }
 
-    public void addPatient(String name, String id){
-        avlTree.insert(new Patient(name,id));
+    public Node addPatient(String name, String id){
+        return avlTree.insert(new Patient(name,id));
     }
 
     // Advanced options
@@ -457,30 +457,38 @@ public class Control {
     }
 
     public void undo(){
-        undoHistory.pop();
-        NodeHistory lastChange;
-        lastChange = undoHistory.pop();
+        if (!undoHistory.isEmpty()) {
+            NodeHistory lastChange = undoHistory.pop();
+            Node avlnode = (Node) lastChange.getNodeTvalue();
+            NodeQueue nodeQueue = (NodeQueue) lastChange.getNodeHvalue();
+            String actionT = lastChange.getActionT();
 
-        String json = (String) lastChange.getValue();
-        Class theClass = (Class) lastChange.getaClass();
+            if (avlnode!=null){
+                if (actionT.equals("Delete AVL-Node")){
+                    avlTree.insert(avlnode.getPatient());
+                }else if(actionT.equals("Insert AVL-Node")){
+                    //TODO
+                    // Make delete method works with AVL trees
+                    avlTree.delete(avlnode.getPatient().getId());
+                }
+            }
+            else if (nodeQueue!=null){
+                if (actionT.equals("Delete MyQueue-Node")){
+                    queue.undoDequeue(nodeQueue);
+                }else if(actionT.equals("Insert MyQueue-Node")){
+                    queue.undoEnqueue();
+                }
+            }
+            System.out.println("* Undone");
 
-        if (theClass.equals(Node.class)){
-            Node node = gson.fromJson(json, Node.class);
-            avlTree.setRoot(node);
-        }else if (theClass.equals(NodeQueue.class)){ //Node Queue
-            NodeQueue nodeQueue = gson.fromJson(json, NodeQueue.class);
-            queue.setHead(nodeQueue);
+            //Todo
+            // Do it like enumeration
+        }else {
+            System.out.println("* There are no more changes registered");
         }
     }
 
-    public void addNodeHistory(Class aClass){
-        String json;
-        if (aClass.equals(AVL_Tree.class)) {
-            json = gson.toJson(avlTree.getRoot());
-            undoHistory.push(json,AVL_Tree.class);
-        } else if (aClass.equals(PriorityQueue.class)) {
-            json = gson.toJson(queue);
-            undoHistory.push(json,PriorityQueue.class);
-        }
+    public void addNodeHistory(Node avlNode , NodeQueue nodeQueue, String actionT){
+        undoHistory.push(avlNode, nodeQueue, actionT);
     }
 }
