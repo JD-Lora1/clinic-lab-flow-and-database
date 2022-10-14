@@ -451,8 +451,8 @@ public class Control {
         return foundNode.getPatient();
     }
 
-    public Node addPatient(String name, String id){
-        return avlTree.insert(new Patient(name,id));
+    public Node addPatient(String name, String id, int age, boolean isPriority){
+        return avlTree.insert(new Patient(name,id,age,isPriority));
     }
 
     // Advanced options
