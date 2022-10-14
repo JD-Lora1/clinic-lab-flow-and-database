@@ -18,12 +18,20 @@ public class Control {
     public Gson gson; //To use Json
     private Scanner sc = new Scanner(System.in);
     public StackUndo<Node, NodeQueue<Patient> >  undoHistory;
-    public MyQueue queue;
+    public MyQueue<Patient> priorityQueueHematology;
+    public MyQueue<Patient> priorityQueueGeneral;
+    public MyQueue<Patient> secondaryQueueHematology;
+    public MyQueue<Patient> secondaryQueueGeneral;
 
     public Control(Comparator comparator){
         avlTree = new AVL_Tree(comparator);
         gson = new Gson();
         undoHistory = new StackUndo<>();
+        priorityQueueHematology = new MyQueue<>();
+        secondaryQueueHematology = new MyQueue<>();
+        priorityQueueGeneral = new MyQueue<>();
+        secondaryQueueGeneral = new MyQueue<>();
+
     }
 
     public void start(){
@@ -474,10 +482,14 @@ public class Control {
                 }
             }
             else if (nodeQueue!=null){
-                if (actionT.equals("Delete MyQueue-Node")){
-                    queue.undoDequeue(nodeQueue);
-                }else if(actionT.equals("Insert MyQueue-Node")){
-                    queue.undoEnqueue();
+                if (actionT.equals("Delete MyQueue-Node-Hematology")){
+                    priorityQueueHematology.undoDequeue(nodeQueue);
+                }else if(actionT.equals("Insert MyQueue-Node-Hematology")){
+                    priorityQueueHematology.undoEnqueue();
+                }else if(actionT.equals("Delete MyQueue-Node-General")){
+                    priorityQueueGeneral.undoDequeue(nodeQueue);
+                }else if(actionT.equals("Insert MyQueue-Node-General")){
+                    priorityQueueGeneral.undoEnqueue();
                 }
             }
             System.out.println("* Undone");
@@ -493,7 +505,54 @@ public class Control {
         undoHistory.push(avlNode, nodeQueue, actionT);
     }
 
-    public void entryLab(){
+    public void entryLab(Patient patient, String lab){
 
+        if(lab == "1"){//Hematology
+            if(patient.isPriority()){
+                priorityQueueHematology.enqueue(new NodeQueue(patient));
+            }else{
+                secondaryQueueHematology.enqueue(new NodeQueue(patient));
+            }
+        }else{//General
+            if(patient.isPriority()){
+                priorityQueueGeneral.enqueue(new NodeQueue(patient));
+            }else{
+                secondaryQueueGeneral.enqueue(new NodeQueue(patient));
+            }
+        }
     }
+
+    public String queueEmpty(String lab){
+        String out = "";
+
+        if(lab == "1"){//Hematology
+            if(priorityQueueHematology.isEmpty() && secondaryQueueHematology.isEmpty()){
+                out = "1";
+            }else if(priorityQueueHematology.isEmpty()){
+                out = "2";
+            }else if(secondaryQueueHematology.isEmpty()){
+                out = "3";
+            }
+        }else{//General
+            if(priorityQueueGeneral.isEmpty() && secondaryQueueGeneral.isEmpty()){
+                out = "1";
+            }else if(priorityQueueGeneral.isEmpty()){
+                out = "2";
+            }else if(secondaryQueueGeneral.isEmpty()){
+                out = "3";
+            }
+        }
+
+        if(out == "1"){
+            out = "Priority queue and secondary queue are empty";
+        } else if (out == "2") {
+            out = "Priority queue is empty";
+        } else if (out == "3"){
+            out = "Secondary queue is empty";
+        }
+
+        return out;
+    }
+
+
 }

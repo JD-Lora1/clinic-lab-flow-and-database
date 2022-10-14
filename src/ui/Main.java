@@ -43,7 +43,7 @@ public class Main {
             opt = sc.nextLine();
             String  id = "";
 
-            Patient tempPatient = new Patient("jeison","-1");
+            Patient tempPatient = new Patient(null,"-1");
 
             switch (opt){
                 case "1":
@@ -119,15 +119,23 @@ public class Main {
                     control.writeJsonFile();
                     break;
                 case "9":
-                    if(tempPatient.getId() == "-1"){
-                        System.out.println("Debes hacer el paso numero 1 primero");
+
+                    String lab = "";
+                    while(!lab.equals("1") && !lab.equals("2")){
+                    System.out.println("Entry to:\n 1.Hematology laboratory\n 2.General laboratory\n");
+                        lab = sc.nextLine();
+                        System.out.println(lab);
+                    }
+
+                    if(control.queueEmpty(lab)!=""){
+                        System.out.println(control.queueEmpty(lab));
+                    } else if(tempPatient.getId() == "-1"){
+                        System.out.println("You must look for the patient first (Option 1)");
                     } else{
                         if (tempPatient==null){
-                            System.out.println("El paciente no existe");
-                            //toDo
-                            // 2. Sugerir agregar a la
-                        }else{
-
+                            System.out.println("The patient does not exist");
+                        }else{ //All right
+                            control.entryLab(tempPatient, lab);
                         }
                     }
             }
