@@ -3,6 +3,7 @@ package model;
 import java.util.Comparator;
 
 public class AVL_Tree {
+
     private Node root;
     private Comparator comparator;
 
@@ -91,7 +92,7 @@ public class AVL_Tree {
         }
     }
     public Node delete(String id){
-        return delete(id, root);
+        return deleteNode(id, root);
     }
     private Node delete(String goal, Node current){
         if(current == null){
@@ -112,7 +113,7 @@ public class AVL_Tree {
             }
             //3. Nodo con hijos
             else{
-                Node min = findLeft(current.right);
+                Node min = findMinimum(current.right);
                 current.getPatient().setId(min.getPatient().getId());
                 //Hacer eliminación a partir de la derecha
                 current.right = (delete(min.getPatient().getId(), current.right));
@@ -126,11 +127,91 @@ public class AVL_Tree {
         }
         return current;
     }
-    public Node findLeft(Node current){
-        if(current.left == null){
-            return current;
+
+    public Node deleteNode(String goal, Node current) {
+        // First, delete as a standard BST
+        if (current == null)
+            return null;
+
+        // smaller
+        if (goal < current.key)
+            current.left = deleteNode(goal, current.left);
+        //bigger
+        else if (goal > current.key)
+            current.right = deleteNode(goal, current.right);
+        //goal found
+        else {
+            // node with only one child or no child
+            if ((current.left == null) || (current.right == null)) {
+                Node temp = null;
+                if (current.left == null)
+                    temp = current.right;
+                else
+                    temp = current.left;
+
+                // No children
+                if (temp == null) {
+                    temp = current;
+                    current = null;
+                }
+                else // One child
+                    current = temp; // Copy the contents of the non-empty child
+            }
+            else {
+                // node with two children
+                Node temp = findMinimum(current.right);
+
+                // Copy the inorder successor's data to this node
+                current.key = temp.key;
+
+                // Delete the inorder successor
+                current.right = deleteNode(current.right, temp.key);
+            }
         }
-        return findLeft(current.left);
+
+        // If the tree had only one node then return
+        if (current == null)
+            return current;
+
+        // STEP 2: UPDATE HEIGHT OF THE CURRENT NODE
+        current.height = max(height(current.left), height(current.right)) + 1;
+
+        // STEP 3: GET THE BALANCE FACTOR OF THIS NODE (to check whether
+        // this node became unbalanced)
+        int balance = getBalance(current);
+
+        // If this node becomes unbalanced, then there are 4 cases
+        // Left Left Case
+        if (balance > 1 && getBalance(current.left) >= 0)
+            return rightRotate(current);
+
+        // Left Right Case
+        if (balance > 1 && getBalance(current.left) < 0)
+        {
+            current.left = leftRotate(current.left);
+            return rightRotate(current);
+        }
+
+        // Right Right Case
+        if (balance < -1 && getBalance(current.right) <= 0)
+            return leftRotate(current);
+
+        // Right Left Case
+        if (balance < -1 && getBalance(current.right) > 0)
+        {
+            current.right = rightRotate(current.right);
+            return leftRotate(current);
+        }
+
+        return current;
+    }
+
+    public  Node findMinimum(Node current){
+        //Find the left-most node. Minimum
+        while (current.left != null)
+            current = current.left;
+
+        return current;
     }
 
     public Node getRoot() {

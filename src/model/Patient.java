@@ -6,10 +6,6 @@ public class Patient {
     private int age;
     private boolean isPriority;
 
-    public Patient(String name, String id) {
-        this.name = name;
-        this.id = id;
-    }
     public Patient(String name, String id,int age,boolean isPriority) {
         this.name = name;
         this.id = id;
@@ -53,3 +49,4 @@ public class Patient {
         return "ID: "+id+", Name: "+name;
     }
 }
+

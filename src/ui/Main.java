@@ -38,12 +38,11 @@ public class Main {
                     "\n 6.Factory RESET"+
                     "\n 7.Save/Serialize" +
                     "\n 8.Undo" +
-                    "\n 9.Ingreso lab" +
                     "\n 0.Exit");
             opt = sc.nextLine();
             String  id = "";
 
-            Patient tempPatient = new Patient(null,"-1");
+            Patient tempPatient = new Patient(null,"-1", 8, true);
 
             switch (opt){
                 case "1":
@@ -51,7 +50,7 @@ public class Main {
                     while (id.equals("")){
                         id = readId(id);
                     }
-                    tempPatient = control.findPatient(id);
+                    control.findPatient(id);
                     System.out.println("");
                     break;
                 case "2":
@@ -65,6 +64,27 @@ public class Main {
                     //Serialize the data
                     control.writeJsonFile();
                     System.out.println("");
+                    System.out.println("Enter the age of the patient");
+                    int age = sc.nextInt();
+                    boolean isPriority = false;
+                    if(age>=50){
+                        isPriority = true;
+                    }else{
+                        System.out.println("Type of atention: \n" +
+                                "1.Normal \n" +
+                                "2.Priority");
+                        int typeAtention = sc.nextInt();
+
+                        switch (typeAtention){
+                            case 1:
+                                isPriority = false;
+                                break;
+                            case 2:
+                                isPriority = true;
+                                break;
+                        }
+                    }
+                    Patient patient = new Patient(name,id,age,isPriority);
                     break;
                 case "3":
                     //Find it, then delete it
@@ -159,3 +179,4 @@ public class Main {
 
 
 }
+
