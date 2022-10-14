@@ -38,9 +38,12 @@ public class Main {
                     "\n 6.Factory RESET"+
                     "\n 7.Save/Serialize" +
                     "\n 8.Undo" +
+                    "\n 9.Ingreso lab" +
                     "\n 0.Exit");
             opt = sc.nextLine();
             String  id = "";
+
+            Patient tempPatient = new Patient("jeison","-1");
 
             switch (opt){
                 case "1":
@@ -48,7 +51,7 @@ public class Main {
                     while (id.equals("")){
                         id = readId(id);
                     }
-                    control.findPatient(id);
+                    tempPatient = control.findPatient(id);
                     System.out.println("");
                     break;
                 case "2":
@@ -114,6 +117,19 @@ public class Main {
                     //Undo
                     control.undo();
                     control.writeJsonFile();
+                    break;
+                case "9":
+                    if(tempPatient.getId() == "-1"){
+                        System.out.println("Debes hacer el paso numero 1 primero");
+                    } else{
+                        if (tempPatient==null){
+                            System.out.println("El paciente no existe");
+                            //toDo
+                            // 2. Sugerir agregar a la
+                        }else{
+
+                        }
+                    }
             }
         }
         control.writeJsonFile();

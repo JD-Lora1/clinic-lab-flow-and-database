@@ -432,7 +432,7 @@ public class Control {
 
     //TO NODES
 
-    public void findPatient(String id){
+    public Patient findPatient(String id){
         Node foundNode = avlTree.findPatient(id);
         if (foundNode!=null){
             System.out.println("Found:");
@@ -440,6 +440,7 @@ public class Control {
         }else {
             System.out.println("Not Found:");
         }
+        return foundNode.getPatient();
     }
 
     public Node addPatient(String name, String id){
@@ -490,5 +491,9 @@ public class Control {
 
     public void addNodeHistory(Node avlNode , NodeQueue nodeQueue, String actionT){
         undoHistory.push(avlNode, nodeQueue, actionT);
+    }
+
+    public void entryLab(){
+
     }
 }
