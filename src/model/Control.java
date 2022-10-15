@@ -441,18 +441,20 @@ public class Control {
     //TO NODES
 
     public Patient findPatient(String id){
+
         Node foundNode = avlTree.findPatient(id);
         if (foundNode!=null){
             System.out.println("Found:");
             System.out.println(foundNode.getPatient().showData());
+            return foundNode.getPatient();
         }else {
-            System.out.println("Not Found:");
+            System.out.println("Not Found.");
+            return null;
         }
-        return foundNode.getPatient();
     }
 
-    public Node addPatient(String name, String id){
-        return avlTree.insert(new Patient(name,id,null));
+    public Node addPatient(String name, String id, int age, boolean isPriority){
+        return avlTree.insert(new Patient(name,id,age,isPriority));
     }
 
     // Advanced options
@@ -507,17 +509,26 @@ public class Control {
 
     public void entryLab(Patient patient, String lab){
 
-        if(lab == "1"){//Hematology
+        if(lab.equals("1")){//Hematology
             if(patient.isPriority()){
                 priorityQueueHematology.enqueue(new NodeQueue(patient));
+
+                System.out.println("Cola prioritaria hematología"+priorityQueueHematology.top().getValue().toString());
+
             }else{
                 secondaryQueueHematology.enqueue(new NodeQueue(patient));
+
+                System.out.println("Cola secundaria hematología"+secondaryQueueHematology.top().getValue().toString());
             }
         }else{//General
             if(patient.isPriority()){
                 priorityQueueGeneral.enqueue(new NodeQueue(patient));
+
+                System.out.println("Cola prioritaria general"+priorityQueueGeneral.top().getValue().toString());
             }else{
                 secondaryQueueGeneral.enqueue(new NodeQueue(patient));
+
+                System.out.println("Cola secundaria general"+secondaryQueueGeneral.top().getValue().toString());
             }
         }
     }
@@ -525,7 +536,7 @@ public class Control {
     public String queueEmpty(String lab, String queueType){
         String out = "";
 
-        if(lab == "1"){//Hematology
+        if(lab.equals("1")){//Hematology
 
             if(queueType.equals("1") && priorityQueueHematology.isEmpty()){
                 out = "1";
@@ -547,6 +558,36 @@ public class Control {
         }
 
         return out;
+    }
+
+    public Patient dischargeLab(String lab, String queueType){
+
+        Patient removed = null;
+
+        switch (lab){
+            case "1":
+                switch (queueType){
+                    case "1":
+                        removed = priorityQueueHematology.dequeue();
+                        break;
+                    case "2":
+                        removed = secondaryQueueHematology.dequeue();
+                        break;
+                }
+                break;
+            case"2":
+                switch (queueType){
+                    case "1":
+                        removed = priorityQueueGeneral.dequeue();
+                        break;
+                    case "2":
+                        removed = secondaryQueueGeneral.dequeue();
+                        break;
+                }
+                break;
+        }
+
+        return removed;
     }
 
 

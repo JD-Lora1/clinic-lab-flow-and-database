@@ -134,10 +134,10 @@ public class AVL_Tree {
             return null;
 
         // smaller
-        if (goal < current.key)
+        if (goal.compareTo(current.getPatient().getId()) < 0)
             current.left = deleteNode(goal, current.left);
         //bigger
-        else if (goal > current.key)
+        else if (goal.compareTo(current.getPatient().getId()) > 0)
             current.right = deleteNode(goal, current.right);
         //goal found
         else {
@@ -162,48 +162,54 @@ public class AVL_Tree {
                 Node temp = findMinimum(current.right);
 
                 // Copy the inorder successor's data to this node
-                current.key = temp.key;
+                current.getPatient().setId(temp.getPatient().getId());
 
                 // Delete the inorder successor
-                current.right = deleteNode(current.right, temp.key);
+                current.right = deleteNode(temp.getPatient().getId(), current.right);
             }
         }
 
         // If the tree had only one node then return
         if (current == null)
-            return current;
+            return null;
 
         // STEP 2: UPDATE HEIGHT OF THE CURRENT NODE
-        current.height = max(height(current.left), height(current.right)) + 1;
+        current.height = Math.max(getHeight(current.left), getHeight(current.right)) + 1;
 
-        // STEP 3: GET THE BALANCE FACTOR OF THIS NODE (to check whether
-        // this node became unbalanced)
+        // STEP 3: GET THE BALANCE FACTOR OF THIS NODE (to check whether this node became unbalanced)
         int balance = getBalance(current);
 
         // If this node becomes unbalanced, then there are 4 cases
         // Left Left Case
         if (balance > 1 && getBalance(current.left) >= 0)
-            return rightRotate(current);
+            return rotateWithRightChild(current);
 
         // Left Right Case
         if (balance > 1 && getBalance(current.left) < 0)
         {
-            current.left = leftRotate(current.left);
-            return rightRotate(current);
+            //current.left = leftRotate(current.left);
+            return doubleWithRightChild(current);
         }
 
         // Right Right Case
         if (balance < -1 && getBalance(current.right) <= 0)
-            return leftRotate(current);
+            return rotateWithLeftChild(current);
 
         // Right Left Case
         if (balance < -1 && getBalance(current.right) > 0)
         {
-            current.right = rightRotate(current.right);
-            return leftRotate(current);
+            //current.right = rightRotate(current.right);
+            return doubleWithLeftChild(current);
         }
 
         return current;
+    }
+
+    int getBalance(Node N)
+    {
+        if (N == null)
+            return 0;
+        return getHeight(N.left) - getHeight(N.right);
     }
 
     public  Node findMinimum(Node current){

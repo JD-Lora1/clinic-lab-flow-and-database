@@ -28,8 +28,9 @@ public class Main {
 
         //menu
         String opt = "";
+        Patient tempPatient = new Patient(null,"-1", 8, true);
         while (!opt.equals("0")){
-            System.out.println("Choose an option:" +
+            System.out.println("\nChoose an option:" +
                     "\n 1.Search a patient" +
                     "\n 2.Add a new patient" +
                     "\n 3.Delete Patient (On process)"+
@@ -40,21 +41,23 @@ public class Main {
                     "\n 8.Undo" +
                     "\n 9.Admit patient to the laboratory" +
                     "\n 10.Discharge patient from laboratory" +
-                    "\n 0.Exit");
+                    "\n 0.Exit\n");
             opt = sc.nextLine();
             String  id = "";
             String lab = "";
 
-            Patient tempPatient = new Patient(null,"-1", 8, true);
-
             switch (opt){
                 case "1":
-                    System.out.print("Please provide the id: ");
-                    while (id.equals("")){
-                        id = readId(id);
+                    if(control.avlTree.getRoot() == null) {
+                        System.out.println("There are not patients");
+                    }else{
+                        System.out.print("Please provide the id: ");
+                        while (id.equals("")){
+                            id = readId(id);
+                        }
+                        tempPatient = control.findPatient(id);
+                        System.out.println("");
                     }
-                    control.findPatient(id);
-                    System.out.println("");
                     break;
                 case "2":
                     System.out.print("Please provide the full name: ");
@@ -63,10 +66,7 @@ public class Main {
                     while (id.equals("")){
                         id = readId(id);
                     }
-                    control.addNodeHistory(control.addPatient(name,id), null,"Insert AVL-Node");
-                    //Serialize the data
-                    control.writeJsonFile();
-                    System.out.println("");
+
                     System.out.println("Enter the age of the patient");
                     int age = sc.nextInt();
                     boolean isPriority = false;
@@ -87,7 +87,14 @@ public class Main {
                                 break;
                         }
                     }
-                    Patient patient = new Patient(name,id,age,isPriority);
+
+                    Patient patient = new Patient(name,id,age,isPriority); // No que hace esto :c
+                    control.addNodeHistory(control.addPatient(name,id, age, isPriority), null,"Insert AVL-Node");
+                    //Serialize the data
+                    control.writeJsonFile();
+                    System.out.println("");
+
+
                     break;
                 case "3":
                     //Find it, then delete it
@@ -143,21 +150,37 @@ public class Main {
                     break;
                 case "9":
 
-                    lab = "";
-                    while(!lab.equals("1") && !lab.equals("2")){
-                    System.out.println("Entry to:\n 1.Hematology laboratory\n 2.General laboratory\n");
-                        lab = sc.nextLine();
-                    }
-
-                    if(control.avlTree.getRoot() == null){
-                        System.out.println("There are not patients in the hospital");
-                    } else if(tempPatient.getId() == "-1"){
+                    if(tempPatient.getId() == "-1"){
                         System.out.println("You must look for the patient first (Option 1)");
-                    } else if (tempPatient==null){
-                            System.out.println("The patient does not exist");
-                    }else{ //All right
-                            control.entryLab(tempPatient, lab);
+                    } else{
+                        String selected = "";
+                        while(!selected.equals("1") && !selected.equals("2")) {
+                            System.out.println("You have selected the patient: \n" + tempPatient.showData() + "\n¿Would you like to continue?\n 1.Yes\n 2.No");
+                            selected = sc.nextLine();
+
+                            if (selected.equals("1")) {
+
+                                if (control.avlTree.getRoot() == null) {
+                                    System.out.println("There are not patients in the hospital");
+                                } else if (tempPatient == null) {
+                                    System.out.println("The selected patient does not exist, to change the patient select the first option in the main menu");
+                                } else { //All right
+
+                                    lab = "";
+                                    while (!lab.equals("1") && !lab.equals("2")) {
+                                        System.out.println("Entry to:\n 1.Hematology laboratory\n 2.General laboratory");
+                                        lab = sc.nextLine();
+                                    }
+                                    control.entryLab(tempPatient, lab);
+                                }
+                            } else if (selected.equals("2")) {
+                                System.out.println("To change patient select option 1 in the main menu");
+                            } else {
+                                System.out.println("Invalid option");
+                            }
+                        }
                     }
+                    break;
 
                 case "10":
                     if(control.avlTree.getRoot() == null){
@@ -170,35 +193,14 @@ public class Main {
                             lab = sc.nextLine();
                         }
                         while (!queueType.equals("1") && !queueType.equals("2")) {
-                            System.out.println("Dequeue in:\n 1.Priority\n 2.General\n");
+                            System.out.println("Dequeue in:\n 1.Priority\n 2.Secondary\n");
                             queueType = sc.nextLine();
                         }
 
                         if(!control.queueEmpty(lab, queueType).equals("")){
                             System.out.println(control.queueEmpty(lab, queueType));
                         }else{
-                            switch (lab){
-                                case "1":
-                                    switch (queueType){
-                                        case "1":
-                                            control.priorityQueueHematology.dequeue();
-                                            break;
-                                        case "2":
-                                            control.secondaryQueueHematology.dequeue();
-                                            break;
-                                    }
-                                    break;
-                                case"2":
-                                    switch (queueType){
-                                        case "1":
-                                            control.priorityQueueGeneral.dequeue();
-                                            break;
-                                        case "2":
-                                            control.secondaryQueueGeneral.dequeue();
-                                            break;
-                                    }
-                                    break;
-                            }
+                            System.out.println("\tRemoved\n"+control.dischargeLab(lab, queueType).showData());
                         }
                     }
                     break;

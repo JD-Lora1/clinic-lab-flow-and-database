@@ -51,5 +51,15 @@ public class Patient {
     public String showData(){
         return "ID: "+id+", Name: "+name;
     }
+
+    @Override
+    public String toString() {
+        return "Patient{" +
+                "name='" + name + '\'' +
+                ", id='" + id + '\'' +
+                ", age=" + age +
+                ", isPriority=" + isPriority +
+                '}';
+    }
 }
 
