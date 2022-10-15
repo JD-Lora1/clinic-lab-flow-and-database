@@ -38,9 +38,12 @@ public class Main {
                     "\n 6.Factory RESET"+
                     "\n 7.Save/Serialize" +
                     "\n 8.Undo" +
+                    "\n 9.Admit patient to the laboratory" +
+                    "\n 10.Discharge patient from laboratory" +
                     "\n 0.Exit");
             opt = sc.nextLine();
             String  id = "";
+            String lab = "";
 
             Patient tempPatient = new Patient(null,"-1", 8, true);
 
@@ -140,24 +143,65 @@ public class Main {
                     break;
                 case "9":
 
-                    String lab = "";
+                    lab = "";
                     while(!lab.equals("1") && !lab.equals("2")){
                     System.out.println("Entry to:\n 1.Hematology laboratory\n 2.General laboratory\n");
                         lab = sc.nextLine();
-                        System.out.println(lab);
                     }
 
-                    if(control.queueEmpty(lab)!=""){
-                        System.out.println(control.queueEmpty(lab));
+                    if(control.avlTree.getRoot() == null){
+                        System.out.println("There are not patients in the hospital");
                     } else if(tempPatient.getId() == "-1"){
                         System.out.println("You must look for the patient first (Option 1)");
-                    } else{
-                        if (tempPatient==null){
+                    } else if (tempPatient==null){
                             System.out.println("The patient does not exist");
-                        }else{ //All right
+                    }else{ //All right
                             control.entryLab(tempPatient, lab);
+                    }
+
+                case "10":
+                    if(control.avlTree.getRoot() == null){
+                        System.out.println("There are not patients in the hospital");
+                    }else {
+                        lab = "";
+                        String queueType = "";
+                        while (!lab.equals("1") && !lab.equals("2")) {
+                            System.out.println("Select the laboratory:\n 1.Hematology laboratory\n 2.General laboratory\n");
+                            lab = sc.nextLine();
+                        }
+                        while (!queueType.equals("1") && !queueType.equals("2")) {
+                            System.out.println("Dequeue in:\n 1.Priority\n 2.General\n");
+                            queueType = sc.nextLine();
+                        }
+
+                        if(!control.queueEmpty(lab, queueType).equals("")){
+                            System.out.println(control.queueEmpty(lab, queueType));
+                        }else{
+                            switch (lab){
+                                case "1":
+                                    switch (queueType){
+                                        case "1":
+                                            control.priorityQueueHematology.dequeue();
+                                            break;
+                                        case "2":
+                                            control.secondaryQueueHematology.dequeue();
+                                            break;
+                                    }
+                                    break;
+                                case"2":
+                                    switch (queueType){
+                                        case "1":
+                                            control.priorityQueueGeneral.dequeue();
+                                            break;
+                                        case "2":
+                                            control.secondaryQueueGeneral.dequeue();
+                                            break;
+                                    }
+                                    break;
+                            }
                         }
                     }
+                    break;
             }
         }
         control.writeJsonFile();

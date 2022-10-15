@@ -452,7 +452,7 @@ public class Control {
     }
 
     public Node addPatient(String name, String id){
-        return avlTree.insert(new Patient(name,id));
+        return avlTree.insert(new Patient(name,id,null));
     }
 
     // Advanced options
@@ -522,32 +522,27 @@ public class Control {
         }
     }
 
-    public String queueEmpty(String lab){
+    public String queueEmpty(String lab, String queueType){
         String out = "";
 
         if(lab == "1"){//Hematology
-            if(priorityQueueHematology.isEmpty() && secondaryQueueHematology.isEmpty()){
+
+            if(queueType.equals("1") && priorityQueueHematology.isEmpty()){
                 out = "1";
-            }else if(priorityQueueHematology.isEmpty()){
+            }else if(queueType.equals("2") && secondaryQueueHematology.isEmpty()){
                 out = "2";
-            }else if(secondaryQueueHematology.isEmpty()){
-                out = "3";
             }
         }else{//General
-            if(priorityQueueGeneral.isEmpty() && secondaryQueueGeneral.isEmpty()){
+            if(queueType.equals("1") && priorityQueueGeneral.isEmpty()){
                 out = "1";
-            }else if(priorityQueueGeneral.isEmpty()){
+            }else if(queueType.equals("2") && secondaryQueueGeneral.isEmpty()){
                 out = "2";
-            }else if(secondaryQueueGeneral.isEmpty()){
-                out = "3";
             }
         }
 
-        if(out == "1"){
-            out = "Priority queue and secondary queue are empty";
-        } else if (out == "2") {
+        if (out == "1") {
             out = "Priority queue is empty";
-        } else if (out == "3"){
+        } else if (out == "2"){
             out = "Secondary queue is empty";
         }
 

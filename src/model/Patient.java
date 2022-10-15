@@ -13,6 +13,9 @@ public class Patient {
         this.isPriority=isPriority;
     }
 
+    public Patient(String name, String id, Object o) {
+    }
+
     public String getName() {
         return name;
     }
