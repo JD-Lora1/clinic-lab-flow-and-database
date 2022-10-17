@@ -211,7 +211,11 @@ public class Main {
         Long longId;
         try {
             longId = Long.parseLong(sc.nextLine());
-            id = longId.toString();
+            if(longId<0){
+                System.out.println("Please enter a valid id");
+            } else{
+                id = longId.toString();
+            }
         }catch (NumberFormatException e){
             System.out.print("Please provide a valid id number: ");
         }
