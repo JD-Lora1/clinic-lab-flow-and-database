@@ -14,14 +14,14 @@ class StackUndoTest {
 
     public void setup2(){
         setup1();
-        stackUndo.push( new Node(new Patient("PatientFirst","0")), null,"Insert AVL-Node");
-        stackUndo.push( new Node(new Patient("patientLast","2")), null,"Insert AVL-Node");
+        stackUndo.push( new Node(new Patient("PatientFirst","0", 1, true)), null,"Insert AVL-Node");
+        stackUndo.push( new Node(new Patient("patientLast","2", 2, false)), null,"Insert AVL-Node");
     }
 
     @Test
     void push() {
         setup2();
-        stackUndo.push( new Node(new Patient("lastOne","3")), null,"Insert AVL-Node");
+        stackUndo.push( new Node(new Patient("lastOne","3",2, false)), null,"Insert AVL-Node");
         Node node = (Node) stackUndo.peek().getNodeTvalue();
         assertEquals(node.getPatient().getId(), "3");
     }

@@ -88,7 +88,6 @@ public class Main {
                         }
                     }
 
-                    Patient patient = new Patient(name,id,age,isPriority); // No que hace esto :c
                     control.addNodeHistory(control.addPatient(name,id, age, isPriority), null,"Insert AVL-Node");
                     //Serialize the data
                     control.writeJsonFile();
@@ -102,9 +101,7 @@ public class Main {
                     while (id.equals("")){
                         id = readId(id);
                     }
-                    //control.addNodeHistory(control.avlTree.delete(id), null,"Insert AVL-Node");
-                    //TODO
-                    // Make delete method works with AVL trees
+                    control.addNodeHistory(control.avlTree.delete(id), null,"Delete AVL-Node");
 
                     //Serialize the data
                     control.writeJsonFile();
@@ -115,8 +112,7 @@ public class Main {
                         File file = new File(control.databasePath);
                         //List of files contained by the parent folder of databaseFile
                         ArrayList<File> myFiles = new ArrayList<>();
-                        //myFiles.addAll(List.of(new File(databaseFile.replace("/DataBase.txt","")).listFiles()));
-                        myFiles.addAll(List.of(new File(control.databasePath).getParentFile().listFiles()));
+                        myFiles.addAll(List.of(new File(control.databaseParent).listFiles()));
                         if (!myFiles.contains(new File(new File(control.databasePath).getParent()+"/.git")) ){
                             control.initializeGit();
                         }
@@ -225,4 +221,3 @@ public class Main {
 
 
 }
-
