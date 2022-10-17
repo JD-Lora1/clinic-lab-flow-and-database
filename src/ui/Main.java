@@ -41,6 +41,7 @@ public class Main {
                     "\n 8.Undo" +
                     "\n 9.Admit patient to the laboratory" +
                     "\n 10.Discharge patient from laboratory" +
+                    "\n 11.Print attention order" +
                     "\n 0.Exit\n");
             opt = sc.nextLine();
             String  id = "";
@@ -200,7 +201,31 @@ public class Main {
                         }
                     }
                     break;
+
+                case "11":
+                    System.out.println("Which queue dou you want to see: ");
+                    System.out.println("1.Hematology priority " +
+                            "\n2. Hematology normal" +
+                            "\n3. General priority" +
+                            "\n4. General normal");
+                    int queueDesition = sc.nextInt();
+                    switch (queueDesition){
+                        case 1:
+                            control.priorityQueueHematology.printQueue();
+                            break;
+                        case 2:
+                            control.secondaryQueueHematology.printQueue();
+                            break;
+                        case 3:
+                            control.priorityQueueGeneral.printQueue();
+                            break;
+                        case 4:
+                            control.secondaryQueueGeneral.printQueue();
+                            break;
+                    }
+                    break;
             }
+
         }
         control.writeJsonFile();
         sc.close();

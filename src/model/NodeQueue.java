@@ -8,7 +8,7 @@ public class NodeQueue<T> {
 
     public NodeQueue(T value) {
         this.value = value;
-    }
+        }
 
     public NodeQueue getNext() {
         return next;
@@ -32,5 +32,13 @@ public class NodeQueue<T> {
 
     public void setValue(T value) {
         this.value = value;
+    }
+
+    public String toPrint(){
+        Patient temp = (Patient) value;
+        String toStringValue = "Name: " + temp.getName() +
+                " Id: " + temp.getId();
+
+        return toStringValue;
     }
 }

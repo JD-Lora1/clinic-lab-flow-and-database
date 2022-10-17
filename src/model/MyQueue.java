@@ -10,7 +10,7 @@ public class MyQueue<T> implements  IQueue<T>{
             head = node;
         }else{
             if (head == tail){
-                head.setNext(tail);
+                head.setNext(node);
             } else{
                 tail.setNext(node);
             }
@@ -56,6 +56,16 @@ public class MyQueue<T> implements  IQueue<T>{
             return true;
         }else {
             return false;
+        }
+    }
+
+    public void printQueue(){
+        NodeQueue current = head;
+        int number = 1;
+        while(current!=null){
+            System.out.println(number + "." + current.toPrint());
+            number++;
+            current = current.getNext();
         }
     }
 
