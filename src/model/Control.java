@@ -31,7 +31,6 @@ public class Control {
         secondaryQueueHematology = new MyQueue<>();
         priorityQueueGeneral = new MyQueue<>();
         secondaryQueueGeneral = new MyQueue<>();
-
     }
 
     public void start(){
@@ -224,17 +223,15 @@ public class Control {
         }
     }
 
-    public int initializeGit(){
+    public void initializeGit(){
         System.out.print("Initializing .");
         Process process = null;
-        int exitValue = 0;
         System.out.print(".");
         try {
             //Initialize the repo
             String commandsTotal = "powershell.exe cd "+ databaseParent+"; git init"+
                     "; git branch -M main"+
                     "; git remote add origin https://github.com/JD-Lora1/Clinic-DataBase-Backup.git -m main" +"";
-                    //"; git add DataBase.txt";
 
             process = Runtime.getRuntime().exec(commandsTotal);
             System.out.print(".");
@@ -247,7 +244,6 @@ public class Control {
             process.destroy();
         }
         System.out.println("");
-        return exitValue;
     }
 
     public void powershellReader(Process process) throws IOException {

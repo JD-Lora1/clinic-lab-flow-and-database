@@ -31,24 +31,24 @@ public class Main {
         Patient tempPatient = new Patient(null,"-1", 8, true);
         while (!opt.equals("0")){
             System.out.println("\nChoose an option:" +
-                    "\n 1.Search a patient" +
-                    "\n 2.Add a new patient" +
-                    "\n 3.Delete Patient (On process)"+
-                    "\n 4.Create a backup locally and to Github" +
-                    "\n 5.Restore a backup of DataBase" +
+                    "\n 1.Search/Select a patient" +
+                    "\n 2.Add a patient to the DataBase" +
+                    "\n 3.Delete a patient from the DataBase"+
+                    "\n 4.Add a backup to local DataBase and/or to Github" +
+                    "\n 5.Restore a backup from remote DataBase" +
                     "\n 6.Factory RESET"+
-                    "\n 7.Save/Serialize" +
+                    "\n 7.Save" +
                     "\n 8.Undo" +
                     "\n 9.Admit patient to the laboratory" +
                     "\n 10.Discharge patient from laboratory" +
-                    "\n 11.Print attention order" +
+                    "\n 11.Print attention queue" +
                     "\n 0.Exit\n");
             opt = sc.nextLine();
             String  id = "";
             String lab = "";
 
             switch (opt){
-                case "1":
+                case "1": // Search/Select a patient on the database (AVL tree)
                     if(control.avlTree.getRoot() == null) {
                         System.out.println("There are not patients");
                     }else{
@@ -60,7 +60,7 @@ public class Main {
                         System.out.println("");
                     }
                     break;
-                case "2":
+                case "2": // Add a patient to the database (AVL tree)
                     System.out.print("Please provide the full name: ");
                     String name = sc.nextLine();
                     System.out.print("Now, write the id: ");
@@ -96,7 +96,7 @@ public class Main {
 
 
                     break;
-                case "3":
+                case "3": // Delete a patient from the database (AVL tree)
                     //Find it, then delete it
                     System.out.print("Write the id: ");
                     while (id.equals("")){
@@ -108,7 +108,7 @@ public class Main {
                     control.writeJsonFile();
                     System.out.println("");
                     break;
-                case "4":
+                case "4": // Create a backup locally and to Github
                     try {
                         File file = new File(control.databasePath);
                         //List of files contained by the parent folder of databaseFile
@@ -126,26 +126,26 @@ public class Main {
                     }
                     System.out.println("");
                     break;
-                case "5":
+                case "5": // Restore a backup from remote DataBase
                     control.gitPull(new File(control.databasePath), "commit"); //second option. Direct option
                     control.loadDataToRoot();
                     System.out.println("");
                     break;
-                case "6":
+                case "6": // Factory RESET. (Delete data like paths, but don't the DataBase itself)
                     control.factoryReset();
                     System.out.println("Done");
                     opt="0";
                     break;
-                case "7":
+                case "7": // Save (Serialize)
                     control.writeJsonFile();
-                    System.out.println("Serialized");
+                    System.out.println("Saved");
                     break;
-                case "8":
-                    //Undo
+                case "8": //Undo
+
                     control.undo();
                     control.writeJsonFile();
                     break;
-                case "9":
+                case "9": //Admit patient to the laboratory
 
                     if(tempPatient.getId() == "-1"){
                         System.out.println("You must look for the patient first (Option 1)");
@@ -179,7 +179,7 @@ public class Main {
                     }
                     break;
 
-                case "10":
+                case "10": // Discharge patient from laboratory
                     if(control.avlTree.getRoot() == null){
                         System.out.println("There are not patients in the hospital");
                     }else {
@@ -202,26 +202,25 @@ public class Main {
                     }
                     break;
 
-                case "11":
-                    System.out.println("Which queue dou you want to see: ");
-                    System.out.println("1.Hematology priority " +
-                            "\n2. Hematology normal" +
-                            "\n3. General priority" +
-                            "\n4. General normal");
-                    int queueDesition = sc.nextInt();
-                    switch (queueDesition){
-                        case 1:
-                            control.priorityQueueHematology.printQueue();
-                            break;
-                        case 2:
-                            control.secondaryQueueHematology.printQueue();
-                            break;
-                        case 3:
-                            control.priorityQueueGeneral.printQueue();
-                            break;
-                        case 4:
-                            control.secondaryQueueGeneral.printQueue();
-                            break;
+                case "11": // Print attention queue
+                    int queueOpt = 0;
+                    while (queueOpt == 0) {
+                        System.out.println("Which queue dou you want to see: ");
+                        System.out.println("1.Hematology priority " +
+                                "\n2. Hematology normal" +
+                                "\n3. General priority" +
+                                "\n4. General normal");
+                        queueOpt = sc.nextInt();
+                        switch (queueOpt) {
+                            case 1 -> control.priorityQueueHematology.printQueue();
+                            case 2 -> control.secondaryQueueHematology.printQueue();
+                            case 3 -> control.priorityQueueGeneral.printQueue();
+                            case 4 -> control.secondaryQueueGeneral.printQueue();
+                            default -> {
+                                System.out.println("Choose a valid option");
+                                queueOpt = 0;
+                            }
+                        }
                     }
                     break;
             }
