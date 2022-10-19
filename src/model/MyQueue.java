@@ -19,11 +19,11 @@ public class MyQueue<T> implements  IQueue<T>{
     }
 
 
-    public T dequeue() {
+    public NodeQueue dequeue() {
         if (head == null) {
             return null;
         }else{
-            T out = (T)head.getValue();
+            NodeQueue<T> out = head;
             head = head.getNext();
 
             return out;

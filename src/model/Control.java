@@ -480,15 +480,18 @@ public class Control {
                 }
             }
             else if (nodeQueue!=null){
-                if (actionT.equals("Delete MyQueue-Node-Hematology")){
-                    priorityQueueHematology.undoDequeue(nodeQueue);
-                }else if(actionT.equals("Insert MyQueue-Node-Hematology")){
-                    priorityQueueHematology.undoEnqueue();
-                }else if(actionT.equals("Delete MyQueue-Node-General")){
-                    priorityQueueGeneral.undoDequeue(nodeQueue);
-                }else if(actionT.equals("Insert MyQueue-Node-General")){
-                    priorityQueueGeneral.undoEnqueue();
+                switch (actionT) {
+                    case "Delete Priority-Queue-Hematology" -> priorityQueueHematology.undoDequeue(nodeQueue);
+                    case "Insert Priority-Queue-Hematology" -> priorityQueueHematology.undoEnqueue();
+                    case "Delete Secondary-Queue-Hematology" -> secondaryQueueHematology.undoDequeue(nodeQueue);
+                    case "Insert Secondary-Queue-Hematology" -> secondaryQueueHematology.undoEnqueue();
+
+                    case "Delete Priority-Queue-General" -> priorityQueueGeneral.undoDequeue(nodeQueue);
+                    case "Insert Priority-Queue-General" -> priorityQueueGeneral.undoEnqueue();
+                    case "Delete Secondary-Queue-General" -> secondaryQueueGeneral.undoDequeue(nodeQueue);
+                    case "Insert Secondary-Queue-General" -> secondaryQueueGeneral.undoEnqueue();
                 }
+
             }
             System.out.println("* Undone");
 
@@ -503,30 +506,30 @@ public class Control {
         undoHistory.push(avlNode, nodeQueue, actionT);
     }
 
-    public void entryLab(Patient patient, String lab){
+    public NodeQueue entryLab(Patient patient, String lab){
 
         if(lab.equals("1")){//Hematology
             if(patient.isPriority()){
                 priorityQueueHematology.enqueue(new NodeQueue(patient));
-
                 System.out.println("Cola prioritaria hematología"+priorityQueueHematology.top().getValue().toString());
-
+                addNodeHistory(null, priorityQueueHematology.top() , "Insert Priority-Queue-Hematology");
             }else{
                 secondaryQueueHematology.enqueue(new NodeQueue(patient));
-
-                System.out.println("Cola secundaria hematología"+secondaryQueueHematology.top().getValue().toString());
+                System.out.println("Cola secundaria hematología "+secondaryQueueHematology.top().toPrint());
+                addNodeHistory(null, secondaryQueueHematology.top() , "Insert Secondary-Queue-Hematology");
             }
         }else{//General
             if(patient.isPriority()){
                 priorityQueueGeneral.enqueue(new NodeQueue(patient));
-
-                System.out.println("Cola prioritaria general"+priorityQueueGeneral.top().getValue().toString());
+                System.out.println("Cola prioritaria general "+priorityQueueGeneral.top().toPrint());
+                addNodeHistory(null, priorityQueueGeneral.top() , "Insert Priority-Queue-General");
             }else{
                 secondaryQueueGeneral.enqueue(new NodeQueue(patient));
-
-                System.out.println("Cola secundaria general"+secondaryQueueGeneral.top().getValue().toString());
+                System.out.println("Cola secundaria general "+secondaryQueueGeneral.top().toPrint());
+                addNodeHistory(null, secondaryQueueGeneral.top() , "Insert Secondary-Queue-General");
             }
         }
+        return priorityQueueHematology.top();
     }
 
     public String queueEmpty(String lab, String queueType){
@@ -556,28 +559,32 @@ public class Control {
         return out;
     }
 
-    public Patient dischargeLab(String lab, String queueType){
+    public String dischargeLab(String lab, String queueType){
 
-        Patient removed = null;
+        String removed = null;
 
         switch (lab){
             case "1":
                 switch (queueType){
                     case "1":
-                        removed = priorityQueueHematology.dequeue();
+                        removed = priorityQueueHematology.top().toPrint();
+                        addNodeHistory(null, priorityQueueHematology.dequeue() , "Delete Prioritary-Queue-Hematology");
                         break;
                     case "2":
-                        removed = secondaryQueueHematology.dequeue();
+                        removed = secondaryQueueHematology.top().toPrint();
+                        addNodeHistory(null, secondaryQueueHematology.dequeue() , "Delete Secondary-Queue-Hematology");
                         break;
                 }
                 break;
             case"2":
                 switch (queueType){
                     case "1":
-                        removed = priorityQueueGeneral.dequeue();
+                        removed = priorityQueueGeneral.top().toPrint();
+                        addNodeHistory(null, priorityQueueGeneral.dequeue() , "Delete Prioritary-Queue-General");
                         break;
                     case "2":
-                        removed = secondaryQueueGeneral.dequeue();
+                        removed = secondaryQueueGeneral.top().toPrint();
+                        addNodeHistory(null, secondaryQueueGeneral.dequeue() , "Delete Secondary-Queue-General");
                         break;
                 }
                 break;

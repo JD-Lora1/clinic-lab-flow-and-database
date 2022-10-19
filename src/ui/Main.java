@@ -28,7 +28,8 @@ public class Main {
 
         //menu
         String opt = "";
-        Patient tempPatient = new Patient(null,"-1", 8, true);
+        // Patient selected. Starts being id = -1, because there is no negative ids allowed to set by console.
+        Patient tempPatient = new Patient(null,"-1", 0, true);
         while (!opt.equals("0")){
             System.out.println("\nChoose an option:" +
                     "\n 1.Search/Select a patient" +
@@ -38,7 +39,7 @@ public class Main {
                     "\n 5.Restore a backup from remote DataBase" +
                     "\n 6.Factory RESET"+
                     "\n 7.Save" +
-                    "\n 8.Undo" +
+                    "\n 8.Undo last action" +
                     "\n 9.Admit patient to the laboratory" +
                     "\n 10.Discharge patient from laboratory" +
                     "\n 11.Print attention queue" +
@@ -148,7 +149,7 @@ public class Main {
                 case "9": //Admit patient to the laboratory
 
                     if(tempPatient.getId() == "-1"){
-                        System.out.println("You must look for the patient first (Option 1)");
+                        System.out.println("You must select the patient first (Option 1)");
                     } else{
                         String selected = "";
                         while(!selected.equals("1") && !selected.equals("2")) {
@@ -161,7 +162,7 @@ public class Main {
                                     System.out.println("There are not patients in the hospital");
                                 } else if (tempPatient == null) {
                                     System.out.println("The selected patient does not exist, to change the patient select the first option in the main menu");
-                                } else { //All right
+                                } else {
 
                                     lab = "";
                                     while (!lab.equals("1") && !lab.equals("2")) {
@@ -169,6 +170,7 @@ public class Main {
                                         lab = sc.nextLine();
                                     }
                                     control.entryLab(tempPatient, lab);
+
                                 }
                             } else if (selected.equals("2")) {
                                 System.out.println("To change patient select option 1 in the main menu");
@@ -197,7 +199,7 @@ public class Main {
                         if(!control.queueEmpty(lab, queueType).equals("")){
                             System.out.println(control.queueEmpty(lab, queueType));
                         }else{
-                            System.out.println("\tRemoved\n"+control.dischargeLab(lab, queueType).showData());
+                            System.out.println("\tRemoved\n"+control.dischargeLab(lab, queueType));
                         }
                     }
                     break;
