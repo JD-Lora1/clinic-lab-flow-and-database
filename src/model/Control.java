@@ -511,83 +511,53 @@ public class Control {
         if(lab.equals("1")){//Hematology
             if(patient.isPriority()){
                 priorityQueueHematology.enqueue(new NodeQueue(patient));
-                System.out.println("Cola prioritaria hematología"+priorityQueueHematology.top().getValue().toString());
+                System.out.println("Added to the Hematology Priority Queue"+priorityQueueHematology.top().getValue().toString());
                 addNodeHistory(null, priorityQueueHematology.top() , "Insert Priority-Queue-Hematology");
+                return priorityQueueHematology.top();
             }else{
                 secondaryQueueHematology.enqueue(new NodeQueue(patient));
-                System.out.println("Cola secundaria hematología "+secondaryQueueHematology.top().toPrint());
+                System.out.println("Added to the Hematology Secondary Queue"+secondaryQueueHematology.top().toPrint());
                 addNodeHistory(null, secondaryQueueHematology.top() , "Insert Secondary-Queue-Hematology");
+                return secondaryQueueHematology.top();
             }
         }else{//General
             if(patient.isPriority()){
                 priorityQueueGeneral.enqueue(new NodeQueue(patient));
-                System.out.println("Cola prioritaria general "+priorityQueueGeneral.top().toPrint());
+                System.out.println("Added to the General Priority Queue"+priorityQueueGeneral.top().toPrint());
                 addNodeHistory(null, priorityQueueGeneral.top() , "Insert Priority-Queue-General");
+                return priorityQueueGeneral.top();
             }else{
                 secondaryQueueGeneral.enqueue(new NodeQueue(patient));
-                System.out.println("Cola secundaria general "+secondaryQueueGeneral.top().toPrint());
+                System.out.println("Added to the General Secondary Queue"+secondaryQueueGeneral.top().toPrint());
                 addNodeHistory(null, secondaryQueueGeneral.top() , "Insert Secondary-Queue-General");
+                return secondaryQueueGeneral.top();
             }
         }
-        return priorityQueueHematology.top();
     }
 
-    public String queueEmpty(String lab, String queueType){
-        String out = "";
-
-        if(lab.equals("1")){//Hematology
-
-            if(queueType.equals("1") && priorityQueueHematology.isEmpty()){
-                out = "1";
-            }else if(queueType.equals("2") && secondaryQueueHematology.isEmpty()){
-                out = "2";
-            }
-        }else{//General
-            if(queueType.equals("1") && priorityQueueGeneral.isEmpty()){
-                out = "1";
-            }else if(queueType.equals("2") && secondaryQueueGeneral.isEmpty()){
-                out = "2";
-            }
-        }
-
-        if (out == "1") {
-            out = "Priority queue is empty";
-        } else if (out == "2"){
-            out = "Secondary queue is empty";
-        }
-
-        return out;
-    }
-
-    public String dischargeLab(String lab, String queueType){
-
+    public String dischargeLab(String lab){
         String removed = null;
 
-        switch (lab){
-            case "1":
-                switch (queueType){
-                    case "1":
-                        removed = priorityQueueHematology.top().toPrint();
-                        addNodeHistory(null, priorityQueueHematology.dequeue() , "Delete Prioritary-Queue-Hematology");
-                        break;
-                    case "2":
-                        removed = secondaryQueueHematology.top().toPrint();
-                        addNodeHistory(null, secondaryQueueHematology.dequeue() , "Delete Secondary-Queue-Hematology");
-                        break;
-                }
-                break;
-            case"2":
-                switch (queueType){
-                    case "1":
-                        removed = priorityQueueGeneral.top().toPrint();
-                        addNodeHistory(null, priorityQueueGeneral.dequeue() , "Delete Prioritary-Queue-General");
-                        break;
-                    case "2":
-                        removed = secondaryQueueGeneral.top().toPrint();
-                        addNodeHistory(null, secondaryQueueGeneral.dequeue() , "Delete Secondary-Queue-General");
-                        break;
-                }
-                break;
+        if(lab.equals("1")){//Hematology
+            if(!priorityQueueHematology.isEmpty()){
+                removed = priorityQueueHematology.top().toPrint();
+                addNodeHistory(null, priorityQueueHematology.dequeue() , "Delete Prioritary-Queue-Hematology");
+            }else if(!secondaryQueueHematology.isEmpty()){
+                removed = secondaryQueueHematology.top().toPrint();
+                addNodeHistory(null, secondaryQueueHematology.dequeue() , "Delete Secondary-Queue-Hematology");
+            }else {
+                System.out.println("The queue is empty");
+            }
+        }else{//General
+            if(!priorityQueueGeneral.isEmpty()){
+                removed = priorityQueueGeneral.top().toPrint();
+                addNodeHistory(null, priorityQueueGeneral.dequeue() , "Delete Prioritary-Queue-General");
+            }else if(!secondaryQueueGeneral.isEmpty()){
+                removed = secondaryQueueGeneral.top().toPrint();
+                addNodeHistory(null, secondaryQueueGeneral.dequeue() , "Delete Secondary-Queue-General");
+            }else {
+                System.out.println("The queue is empty");
+            }
         }
 
         return removed;

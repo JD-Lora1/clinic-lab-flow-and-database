@@ -20,10 +20,11 @@ public class Main {
     // Github{Backup, restore Backup}
     // Advanced options{Factory reset(clear data such as on dataBase-Path.txt, or set Windows OS by default)
     private static Scanner sc = new Scanner(System.in);
+    private static Control control;
 
     public static void main(String[] args) {
         Comparator<Patient> comparator = new CompareByID();
-        Control control = new Control(comparator);
+        control = new Control(comparator);
         control.start(); // Initialize the file. Read the data
 
         //menu
@@ -32,7 +33,7 @@ public class Main {
         Patient tempPatient = new Patient(null,"-1", 0, true);
         while (!opt.equals("0")){
             System.out.println("\nChoose an option:" +
-                    "\n 1.Search/Select a patient" +
+                    "\n 1.Search a patient" +
                     "\n 2.Add a patient to the DataBase" +
                     "\n 3.Delete a patient from the DataBase"+
                     "\n 4.Add a backup to local DataBase and/or to Github" +
@@ -49,17 +50,8 @@ public class Main {
             String lab = "";
 
             switch (opt){
-                case "1": // Search/Select a patient on the database (AVL tree)
-                    if(control.avlTree.getRoot() == null) {
-                        System.out.println("There are not patients");
-                    }else{
-                        System.out.print("Please provide the id: ");
-                        while (id.equals("")){
-                            id = readId(id);
-                        }
-                        tempPatient = control.findPatient(id);
-                        System.out.println("");
-                    }
+                case "1": // Search a patient on the database (AVL tree)
+                    searchPatient(id);
                     break;
                 case "2": // Add a patient to the database (AVL tree)
                     System.out.print("Please provide the full name: ");
@@ -147,60 +139,49 @@ public class Main {
                     control.writeJsonFile();
                     break;
                 case "9": //Admit patient to the laboratory
+                    //First search it, and select it
+                    tempPatient = searchPatient(id);
 
-                    if(tempPatient.getId() == "-1"){
-                        System.out.println("You must select the patient first (Option 1)");
-                    } else{
-                        String selected = "";
-                        while(!selected.equals("1") && !selected.equals("2")) {
-                            System.out.println("You have selected the patient: \n" + tempPatient.showData() + "\n¿Would you like to continue?\n 1.Yes\n 2.No");
-                            selected = sc.nextLine();
+                    String selected = "";
+                    while(!selected.equals("1") && !selected.equals("2")) {
+                        System.out.println("\nWould you like to continue with this patient?\n 1.Yes\n 2.No");
+                        selected = sc.nextLine();
 
-                            if (selected.equals("1")) {
+                        if (selected.equals("1")) {
 
-                                if (control.avlTree.getRoot() == null) {
-                                    System.out.println("There are not patients in the hospital");
-                                } else if (tempPatient == null) {
-                                    System.out.println("The selected patient does not exist, to change the patient select the first option in the main menu");
-                                } else {
-
-                                    lab = "";
-                                    while (!lab.equals("1") && !lab.equals("2")) {
-                                        System.out.println("Entry to:\n 1.Hematology laboratory\n 2.General laboratory");
-                                        lab = sc.nextLine();
-                                    }
-                                    control.entryLab(tempPatient, lab);
-
-                                }
-                            } else if (selected.equals("2")) {
-                                System.out.println("To change patient select option 1 in the main menu");
+                            if (control.avlTree.getRoot() == null) {
+                                System.out.println("There are not patients in the hospital");
+                            } else if (tempPatient == null) {
+                                System.out.println("The selected patient does not exist, to change the patient select the first option in the main menu");
                             } else {
-                                System.out.println("Invalid option");
+
+                                lab = "";
+                                while (!lab.equals("1") && !lab.equals("2")) {
+                                    System.out.println("Entry to:\n 1.Hematology laboratory\n 2.General laboratory");
+                                    lab = sc.nextLine();
+                                }
+                                control.entryLab(tempPatient, lab);
                             }
+                        } else if (selected.equals("2")) {
+                            System.out.println("To change patient select option 1 in the main menu");
+                        } else {
+                            System.out.println("Invalid option");
                         }
                     }
+
                     break;
 
-                case "10": // Discharge patient from laboratory
+                case "10": // Discharge patient from laboratory (queue)
                     if(control.avlTree.getRoot() == null){
                         System.out.println("There are not patients in the hospital");
                     }else {
                         lab = "";
-                        String queueType = "";
                         while (!lab.equals("1") && !lab.equals("2")) {
                             System.out.println("Select the laboratory:\n 1.Hematology laboratory\n 2.General laboratory\n");
                             lab = sc.nextLine();
                         }
-                        while (!queueType.equals("1") && !queueType.equals("2")) {
-                            System.out.println("Dequeue in:\n 1.Priority\n 2.Secondary\n");
-                            queueType = sc.nextLine();
-                        }
+                        System.out.println("\tRemoved\n"+control.dischargeLab(lab));
 
-                        if(!control.queueEmpty(lab, queueType).equals("")){
-                            System.out.println(control.queueEmpty(lab, queueType));
-                        }else{
-                            System.out.println("\tRemoved\n"+control.dischargeLab(lab, queueType));
-                        }
                     }
                     break;
 
@@ -208,7 +189,7 @@ public class Main {
                     int queueOpt = 0;
                     while (queueOpt == 0) {
                         System.out.println("Which queue dou you want to see: ");
-                        System.out.println("1.Hematology priority " +
+                        System.out.println("1. Hematology priority " +
                                 "\n2. Hematology normal" +
                                 "\n3. General priority" +
                                 "\n4. General normal");
@@ -219,17 +200,34 @@ public class Main {
                             case 3 -> control.priorityQueueGeneral.printQueue();
                             case 4 -> control.secondaryQueueGeneral.printQueue();
                             default -> {
-                                System.out.println("Choose a valid option");
                                 queueOpt = 0;
+                                System.out.println("Choose a valid option");
                             }
                         }
                     }
+                    break;
+                default:
+                    System.out.println("Choose a valid option");
                     break;
             }
 
         }
         control.writeJsonFile();
         sc.close();
+    }
+
+    public static Patient searchPatient(String id){
+        if(control.avlTree.getRoot() == null) {
+            System.out.println("There are no patients");
+            return null;
+        }else{
+            System.out.print("Please provide the id: ");
+            while (id.equals("")){
+                id = readId(id);
+            }
+            System.out.println("");
+            return control.findPatient(id);
+        }
     }
 
     public static String readId(String id){
