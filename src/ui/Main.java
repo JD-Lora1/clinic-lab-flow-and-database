@@ -7,10 +7,7 @@ import model.Patient;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 public class Main {
 
@@ -31,13 +28,13 @@ public class Main {
         Patient tempPatient = new Patient(null,"-1", 8, true);
         while (!opt.equals("0")){
             System.out.println("\nChoose an option:" +
-                    "\n 1.Search a patient" +
-                    "\n 2.Add a new patient" +
-                    "\n 3.Delete Patient (On process)"+
-                    "\n 4.Create a backup locally and to Github" +
-                    "\n 5.Restore a backup of DataBase" +
-                    "\n 6.Factory RESET"+
-                    "\n 7.Save/Serialize" +
+//                    "\n 1.Search a patient" +
+//                    "\n 2.Add a new patient" +
+//                    "\n 3.Delete Patient (On process)"+
+//                    "\n 4.Create a backup locally and to Github" +
+//                    "\n 5.Restore a backup of DataBase" +
+//                    "\n 6.Factory RESET"+
+//                    "\n 7.Save/Serialize" +
                     "\n 8.Undo" +
                     "\n 9.Admit patient to the laboratory" +
                     "\n 10.Discharge patient from laboratory" +
@@ -92,8 +89,6 @@ public class Main {
                     //Serialize the data
                     control.writeJsonFile();
                     System.out.println("");
-
-
                     break;
                 case "3":
                     //Find it, then delete it
@@ -161,12 +156,6 @@ public class Main {
                                 } else if (tempPatient == null) {
                                     System.out.println("The selected patient does not exist, to change the patient select the first option in the main menu");
                                 } else { //All right
-
-                                    lab = "";
-                                    while (!lab.equals("1") && !lab.equals("2")) {
-                                        System.out.println("Entry to:\n 1.Hematology laboratory\n 2.General laboratory");
-                                        lab = sc.nextLine();
-                                    }
                                     control.entryLab(tempPatient, lab);
                                 }
                             } else if (selected.equals("2")) {
@@ -217,7 +206,5 @@ public class Main {
         }
         return id;
     }
-
-
 
 }

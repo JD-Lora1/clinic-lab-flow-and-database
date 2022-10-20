@@ -31,7 +31,6 @@ public class Control {
         secondaryQueueHematology = new MyQueue<>();
         priorityQueueGeneral = new MyQueue<>();
         secondaryQueueGeneral = new MyQueue<>();
-
     }
 
     public void start(){
