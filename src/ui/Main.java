@@ -247,7 +247,7 @@ public class Main {
             case "8": // Save (Serialize)
                 control.writeJsonFile();
                 System.out.println("Saved");
-                
+
                 break;
 
             case"0":
