@@ -117,8 +117,10 @@ public class Main {
             default:
                 System.out.println("\tTypo\nEnter a valid value");
         }
-        System.out.print("\t* Press enter to continue");
-        sc.nextLine();
+        if (!exe.equals("0")){
+            System.out.print("\t* Press enter to continue");
+            sc.nextLine();
+        }
     }
 
     public void optionsGeneralUnit(String exe){
@@ -140,6 +142,10 @@ public class Main {
                 break;
             default:
                 System.out.println("\tTypo\nEnter a valid value");
+        }
+        if (!exe.equals("0")){
+            System.out.print("\t* Press enter to continue");
+            sc.nextLine();
         }
     }
 
@@ -247,7 +253,6 @@ public class Main {
             case "8": // Save (Serialize)
                 control.writeJsonFile();
                 System.out.println("Saved");
-
                 break;
 
             case"0":
@@ -257,9 +262,13 @@ public class Main {
             default:
                 System.out.println("\tTypo\nEnter a valid value");
         }
-        System.out.print("\t* Press enter to continue");
-        sc.nextLine();
+
+        if (!exe.equals("0")){
+            System.out.print("\t* Press enter to continue");
+            sc.nextLine();
+        }
     }
+
 
     public void dischargeAnyQueue(String lab){
         if(control.avlTree.getRoot() == null){
