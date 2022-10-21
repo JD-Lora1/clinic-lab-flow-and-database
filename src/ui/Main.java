@@ -22,7 +22,7 @@ public class Main {
     // Github{Backup, restore Backup}
     // Advanced options{Factory reset(clear data such as on dataBase-Path.txt, or set Windows OS by default)
 
-    private Scanner sc;
+    private static Scanner sc;
     private Control control;
 
     private String id;
@@ -40,6 +40,8 @@ public class Main {
         ui.Main main = new ui.Main();
         String select = "";
         do{
+            System.out.print("\t* Press enter to continue");
+            sc.nextLine();
             select = main.menu();
             main.select(select, "");
         }while (!select.equals("0"));
@@ -51,7 +53,6 @@ public class Main {
     }
 
     public void select(String number, String exe){
-
         switch(number){
             case "1":
                 do{
@@ -86,6 +87,8 @@ public class Main {
                 System.out.println("\tTypo\nEnter a valid value");
                 break;
         }
+        System.out.print("\t* Press enter to continue");
+        sc.nextLine();
     }
 
     public String menuHematologyUnit(){
@@ -114,6 +117,8 @@ public class Main {
             default:
                 System.out.println("\tTypo\nEnter a valid value");
         }
+        System.out.print("\t* Press enter to continue");
+        sc.nextLine();
     }
 
     public void optionsGeneralUnit(String exe){
@@ -139,6 +144,8 @@ public class Main {
     }
 
     public String menuGeneralUnit(){
+        System.out.print("\t* Press enter to continue");
+        sc.nextLine();
         System.out.println("\n::::::::::::::::::::::::::::::::::\n\tGENERAL UNIT\n::::::::::::::::::::::::::::::::::\n(1) Admit a patient\n(2) Discharge a patient\n(3) Monitor the status\n(0) Back\n::::::::::::::::::::::::::::::::::");
         return sc.nextLine();
     }
@@ -202,6 +209,9 @@ public class Main {
                 control.writeJsonFile();
                 System.out.println("");
                 break;
+            case "4": //Print the DataBase
+                control.avlTree.inorder();
+                break;
 
             case "5": // Create a backup locally and to Github
                 try {
@@ -237,6 +247,7 @@ public class Main {
             case "8": // Save (Serialize)
                 control.writeJsonFile();
                 System.out.println("Saved");
+                break;
 
             case"0":
                 System.out.println("Bye!");
@@ -245,6 +256,8 @@ public class Main {
             default:
                 System.out.println("\tTypo\nEnter a valid value");
         }
+        System.out.print("\t* Press enter to continue");
+        sc.nextLine();
     }
 
     public void dischargeAnyQueue(String lab){
@@ -256,7 +269,6 @@ public class Main {
             System.out.println("\tRemoved\n"+control.dischargeLab(lab));
         }
     }
-
 
     public void patient2Queue(String lab){
 

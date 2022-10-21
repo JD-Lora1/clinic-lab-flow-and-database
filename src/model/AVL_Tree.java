@@ -205,6 +205,18 @@ public class AVL_Tree {
         return current;
     }
 
+    public void inorder(){
+        inorder(root);
+    }
+    private void inorder(Node current){
+        if(current == null){
+            return;
+        }
+        inorder(current.right);
+        System.out.println(current.getPatient().toPrint());
+        inorder(current.left);
+    }
+
     int getBalance(Node N)
     {
         if (N == null)

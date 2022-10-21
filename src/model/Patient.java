@@ -60,12 +60,10 @@ public class Patient {
     }
 
     public String toPrint() {
-        return "Patient{" +
-                "name='" + name + '\'' +
-                ", id='" + id + '\'' +
-                ", age=" + age +
-                ", isPriority=" + isPriority +
-                '}';
+        return  "ID:" + id +
+                ", Name:" + name  +
+                ", Age:" + age +
+                ", Priority atention:" + isPriority;
     }
 }
 
