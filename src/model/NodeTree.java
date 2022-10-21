@@ -1,12 +1,12 @@
 package model;
 
-public class Node {
-    public Node right;
-    public Node left;
+public class NodeTree {
+    public NodeTree right;
+    public NodeTree left;
     private Patient patient;
     public int height;
 
-    public Node(Patient patient) {
+    public NodeTree(Patient patient) {
         left = null;
         right = null;
         height = 0;

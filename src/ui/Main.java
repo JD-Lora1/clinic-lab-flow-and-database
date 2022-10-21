@@ -1,13 +1,10 @@
 package ui;
 
 import Comparators.CompareByID;
-import model.AVL_Tree;
-import model.Control;
-import model.Patient;
+import model.*;
 
 import java.io.File;
 import java.io.IOException;
-import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -40,8 +37,6 @@ public class Main {
         ui.Main main = new ui.Main();
         String select = "";
         do{
-            System.out.print("\t* Press enter to continue");
-            sc.nextLine();
             select = main.menu();
             main.select(select, "");
         }while (!select.equals("0"));
@@ -53,42 +48,41 @@ public class Main {
     }
 
     public void select(String number, String exe){
-        switch(number){
-            case "1":
-                do{
+        while (!exe.equals("0")) {
+            switch (number) {
+                case "1":
                     exe = dataBaseMenu();
                     optionsDataBase(exe);
-                }while(!exe.equals("0"));
-                break;
+                    break;
 
-            case "2":
-                do{
+                case "2":
                     exe = menuHematologyUnit();
                     optionsHematologyUnit(exe);
-                }while(!exe.equals("0"));
-                break;
-            case "3":
-                do{
+                    break;
+                case "3":
                     exe = menuGeneralUnit();
                     optionsGeneralUnit(exe);
-                }while(!exe.equals("0"));
-                break;
-            case "4":
-                //Undo
-                control.undo();
-                control.writeJsonFile();
-                break;
-            case"0":
-                control.writeJsonFile();
-                sc.close();
-                System.out.println("Bye!");
-                break;
-            default:
-                System.out.println("\tTypo\nEnter a valid value");
-                break;
+                    break;
+                case "4":
+                    //Undo
+                    control.undo();
+                    control.writeJsonFile();
+                    break;
+                case "0":
+                    control.writeJsonFile();
+                    System.out.println("Bye!");
+                    sc.close();
+                    break;
+                default:
+                    System.out.println("\tTypo\nEnter a valid value");
+                    break;
+            }
+            if (!exe.equals("0")) {
+                System.out.println("\t* Press enter to continue");
+                sc.nextLine();
+            }
         }
-        System.out.print("\t* Press enter to continue");
-        sc.nextLine();
+
     }
 
     public String menuHematologyUnit(){
@@ -117,10 +111,6 @@ public class Main {
             default:
                 System.out.println("\tTypo\nEnter a valid value");
         }
-        if (!exe.equals("0")){
-            System.out.print("\t* Press enter to continue");
-            sc.nextLine();
-        }
     }
 
     public void optionsGeneralUnit(String exe){
@@ -142,10 +132,6 @@ public class Main {
                 break;
             default:
                 System.out.println("\tTypo\nEnter a valid value");
-        }
-        if (!exe.equals("0")){
-            System.out.print("\t* Press enter to continue");
-            sc.nextLine();
         }
     }
 
@@ -174,10 +160,11 @@ public class Main {
                 System.out.print("Now, write the id: ");
 
                 do{
-                    id = readId(id);
+                    id = readId();
                 }while (id.equals(""));
+                System.out.println("ID:  "+id);
 
-                System.out.println("Enter the age of the patient");
+                System.out.print("Enter the age of the patient: ");
                 int age = sc.nextInt();
                 boolean isPriority = false;
                 if(age>=50){
@@ -197,8 +184,9 @@ public class Main {
                             break;
                     }
                 }
+                id = "";
 
-                control.addNodeHistory(control.addPatient(name,id, age, isPriority), null,"Insert AVL-Node");
+                control.addNodeHistory("AVLtree",control.addPatient(name,id, age, isPriority), "Insert AVL-Node");
                 //Serialize the data
                 control.writeJsonFile();
                 System.out.println("");
@@ -207,13 +195,15 @@ public class Main {
                 //Find it, then delete it
                 System.out.print("Write the id: ");
                 do{
-                    id = readId(id);
+                    id = readId();
                 }while (id.equals(""));
-                control.addNodeHistory(control.avlTree.delete(id), null,"Delete AVL-Node");
+                Patient out = control.avlTree.delete(id);
+                control.addNodeHistory( "AVLtree", out,"Delete AVL-Node");
+                id = "";
 
                 //Serialize the data
                 control.writeJsonFile();
-                System.out.println("");
+                System.out.println(out == null?"Patient not found":"Patient: "+out.showData()+" deleted");
                 break;
             case "4": //Print the DataBase
                 control.avlTree.inorder();
@@ -261,6 +251,7 @@ public class Main {
 
             default:
                 System.out.println("\tTypo\nEnter a valid value");
+                break;
         }
 
         if (!exe.equals("0")){
@@ -301,15 +292,16 @@ public class Main {
         }else{
             System.out.print("Please provide the id: ");
             do{
-                id = readId(id);
+                id = readId();
             }while (id.equals(""));
             System.out.println("");
             return control.findPatient(id);
         }
     }
 
-    public String readId(String id){
+    public String readId(){
         //Guarantee id is a number
+        String id="";
         Long longId;
         try {
             longId = Long.parseLong(sc.nextLine());

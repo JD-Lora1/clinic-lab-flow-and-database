@@ -103,7 +103,7 @@ class MyQueueTest {
         queue.dequeue();
         setup1();
 
-        assertEquals(((Patient)(queue.top().getValue())).getName(), ((Patient)(queue.dequeue().getValue())).getName());
+        assertEquals(((Patient)(queue.top().getValue())).getName(), queue.dequeue().getName());
     }
 
     //Undo
@@ -172,12 +172,12 @@ class MyQueueTest {
         // Undo
         setup0();
         setup1();
-        NodeQueue node1 = queue.dequeue();
-        assertFalse(((Patient)node1.getValue()).isInQueue());
-        NodeQueue node2 = queue.dequeue();
-        queue.undoDequeue(node1);
+        Patient p1 = queue.dequeue();
+        assertFalse(p1.isInQueue());
+        Patient p2 = queue.dequeue();
+        queue.undoDequeue(p1);
 
-        assertTrue(((Patient)node1.getValue()).isInQueue());
+        assertTrue(p1.isInQueue());
     }
 
     @Test
@@ -186,10 +186,10 @@ class MyQueueTest {
         setup0();
         NodeQueue<Patient> node = new NodeQueue<>(new Patient("Andres Arco", "90996", 51, false));
         queue.dequeue();
-        queue.undoDequeue(node);
-        queue.undoDequeue(node);
-        queue.undoDequeue(node);
-        queue.undoDequeue(node);
+        queue.undoDequeue(node.getValue());
+        queue.undoDequeue(node.getValue());
+        queue.undoDequeue(node.getValue());
+        queue.undoDequeue(node.getValue());
         queue.dequeue();
 
         assertTrue(queue.isEmpty());
@@ -199,7 +199,7 @@ class MyQueueTest {
         // Undo with previous actions
         setup0();
         NodeQueue<Patient> node = new NodeQueue<>(new Patient("Andres Arco", "90996", 51, false));
-        queue.undoDequeue(node);
+        queue.undoDequeue(node.getValue());
         queue.enqueue(node);
 
         assertTrue(!queue.isEmpty());

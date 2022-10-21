@@ -24,13 +24,14 @@ public class MyQueue<T> implements  IQueue<T>{
     }
 
 
-    public NodeQueue dequeue() {
+    public Patient dequeue() {
         if (head == null) {
             return null;
         }else{
-            ((Patient)(head.getValue())).setInQueue(false);
-            NodeQueue<T> out = head;
+            Patient out = (Patient)(head.getValue());
+            out.setInQueue(false);
             head = head.getNext();
+            head.setPrev(null);
 
             return out;
         }
@@ -48,9 +49,10 @@ public class MyQueue<T> implements  IQueue<T>{
             }
         }
     }
-    public void undoDequeue(NodeQueue node){
-        if (!((Patient)node.getValue()).isInQueue()) {
-            ((Patient) (node.getValue())).setInQueue(true);
+    public void undoDequeue(Patient patient){
+        if (!patient.isInQueue()) {
+            patient.setInQueue(true);
+            NodeQueue<Patient> node = new NodeQueue<>(patient);
             if (head != null) {
                 node.setNext(head);
                 head.setPrev(node);
