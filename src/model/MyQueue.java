@@ -6,16 +6,21 @@ public class MyQueue<T> implements  IQueue<T>{
     private NodeQueue tail;
 
     public void enqueue(NodeQueue node) {
-        if (head == null) {
-            head = node;
-        }else{
-            if (head == tail){
-                head.setNext(node);
-            } else{
-                tail.setNext(node);
+        if (!((Patient)(node.getValue())).isInQueue()) {
+            ((Patient)(node.getValue())).setInQueue(true);
+            if (head == null) {
+                head = node;
+            } else {
+                if (head == tail) {
+                    head.setNext(node);
+                    tail.setPrev(head);
+                } else {
+                    tail.setNext(node);
+                    node.setPrev(tail);
+                }
             }
+            tail = node;
         }
-        tail = node;
     }
 
 
@@ -23,6 +28,7 @@ public class MyQueue<T> implements  IQueue<T>{
         if (head == null) {
             return null;
         }else{
+            ((Patient)(head.getValue())).setInQueue(false);
             NodeQueue<T> out = head;
             head = head.getNext();
 
@@ -31,22 +37,28 @@ public class MyQueue<T> implements  IQueue<T>{
     }
 
     public void undoEnqueue(){
-        if (tail.getPrev()==null){
-            //Just one node on the queue;
-            head = null;
-        }else {
-            tail = tail.getPrev();
-            tail.setNext(null);
+        if (tail!=null) {
+            ((Patient) (tail.getValue())).setInQueue(false);
+            if (tail.getPrev() == null) {
+                //Just one node on the queue;
+                head = null;
+            } else {
+                tail = tail.getPrev();
+                tail.setNext(null);
+            }
         }
     }
     public void undoDequeue(NodeQueue node){
-        if (head!=null) {
-            node.setNext(head);
-            head.setPrev(node);
-            head = node;
-        }else {
-            head = node;
-            tail = node;
+        if (!((Patient)node.getValue()).isInQueue()) {
+            ((Patient) (node.getValue())).setInQueue(true);
+            if (head != null) {
+                node.setNext(head);
+                head.setPrev(node);
+                head = node;
+            } else {
+                head = node;
+                tail = node;
+            }
         }
     }
 

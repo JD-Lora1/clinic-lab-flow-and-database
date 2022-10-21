@@ -38,8 +38,9 @@ class MyQueueTest {
         NodeQueue<Patient> node2 = new NodeQueue<>(new Patient("Benito B", "315444", 53, false));
         queue.enqueue(node);
         queue.enqueue(node2);
+        Patient p =  (Patient) queue.top().getValue();
 
-        assertEquals(node2, queue.top());
+        assertEquals(node.getValue().getName(), p.getName());
     }
 
     @Test
@@ -54,7 +55,7 @@ class MyQueueTest {
         queue.enqueue(node);
         queue.dequeue();
 
-        assert(queue.isEmpty());
+        assertTrue(queue.isEmpty());
     }
 
     @Test
@@ -71,6 +72,7 @@ class MyQueueTest {
         assertTrue(otherQueue.isEmpty());
         assertFalse(queue.isEmpty());
     }
+
 
     @Test
     public void dequeueTest1(){
@@ -91,34 +93,135 @@ class MyQueueTest {
         queue.dequeue();
         Patient patient = (Patient) queue.top().getValue();
 
-        assertEquals(patient.getName(), "Santi");
+        assertEquals(patient.getName(), "Juandi");
     }
 
     @Test
     public  void dequeueTest3(){
-        setup2();
+        setup0();
+        queue.enqueue(new NodeQueue<Patient>(new Patient("Prueba", "111",2,true)));
         queue.dequeue();
-        queue.enqueue(new NodeQueue<Patient>(new Patient("Prueba", )));
+        setup1();
+
+        assertEquals(((Patient)(queue.top().getValue())).getName(), ((Patient)(queue.dequeue().getValue())).getName());
+    }
+
+    //Undo
+
+    @Test
+    public void undoEnqueueTest1(){
+        setup0();
+        NodeQueue<Patient> node = new NodeQueue<>(new Patient("Andres Arco", "90996", 51, false));
+        queue.enqueue(node);
+        queue.undoEnqueue();
+
+        assertTrue(queue.isEmpty());
+    }
+
+    @Test
+    public void undoEnqueueTest2(){
+        setup0();
+        setup2();
+        NodeQueue<Patient> node = new NodeQueue<>(new Patient("Andres Arco", "90996", 51, false));
+        queue.enqueue(node);
+        queue.undoEnqueue();
+
+        assertEquals(((Patient)(queue.top().getValue())).getName(), "Aaron Arango");
+    }
+
+    @Test
+    public void undoEnqueueTest3(){
+        // Allows to enque after a undo
+        setup0();
+        NodeQueue<Patient> node = new NodeQueue<>(new Patient("Andres Arco", "90996", 51, false));
+        queue.enqueue(node);
+        queue.undoEnqueue();
+        queue.enqueue(node);
+
+        assertEquals(((Patient)(queue.top().getValue())).getName(), "Andres Arco");
+    }
+
+    @Test
+    public void undoEnqueueTest4(){
+        // Undo several times
+        setup0();
+        NodeQueue<Patient> node = new NodeQueue<>(new Patient("Andres Arco", "90996", 51, false));
+        queue.enqueue(node);
+        queue.undoEnqueue();
+        queue.enqueue(node);
+        queue.undoEnqueue();
+        queue.undoEnqueue();
+        queue.undoEnqueue();
+
+        assertTrue(queue.isEmpty());
+    }
+
+    @Test
+    public void undoEnqueueTest5(){
+        // Undo with previous actions
+        setup0();
+        queue.undoEnqueue();
+        NodeQueue<Patient> node = new NodeQueue<>(new Patient("Andres Arco", "90996", 51, false));
+        queue.enqueue(node);
+
+        assertTrue(!queue.isEmpty());
+    }
+
+    @Test
+    public void undoDequeueTest1(){
+        // Undo
+        setup0();
+        setup1();
+        NodeQueue node1 = queue.dequeue();
+        assertFalse(((Patient)node1.getValue()).isInQueue());
+        NodeQueue node2 = queue.dequeue();
+        queue.undoDequeue(node1);
+
+        assertTrue(((Patient)node1.getValue()).isInQueue());
+    }
+
+    @Test
+    public void undoDequeueTest2(){
+        // Undo, with the same node, can't be
+        setup0();
+        NodeQueue<Patient> node = new NodeQueue<>(new Patient("Andres Arco", "90996", 51, false));
+        queue.dequeue();
+        queue.undoDequeue(node);
+        queue.undoDequeue(node);
+        queue.undoDequeue(node);
+        queue.undoDequeue(node);
         queue.dequeue();
 
-        assertEquals(queue.top().getValue(), queue.dequeue());
+        assertTrue(queue.isEmpty());
+    }
+    @Test
+    public void undoDequeueTest3(){
+        // Undo with previous actions
+        setup0();
+        NodeQueue<Patient> node = new NodeQueue<>(new Patient("Andres Arco", "90996", 51, false));
+        queue.undoDequeue(node);
+        queue.enqueue(node);
+
+        assertTrue(!queue.isEmpty());
     }
 
     @Test
     public void isEmptyTest(){
-        queue = setup1();
+        setup0();
+        setup1();
         assertEquals(queue.isEmpty(), false);
     }
 
     @Test
     public void isEmptyTest2(){
-        queue = setup0();
+        setup0();
         assertEquals(queue.isEmpty(), true);
     }
 
     @Test
     public void isEmptyTest3(){
-        queue = setup2();
+        setup0();
+        setup2();
         queue.dequeue();
         queue.dequeue();
         queue.dequeue();

@@ -251,11 +251,8 @@ public class Main {
         if(control.avlTree.getRoot() == null){
             System.out.println("There are not patients in the hospital");
         }else {
-            lab = "";
-            while (!lab.equals("1") && !lab.equals("2")) {
-                System.out.println("Select the laboratory:\n 1.Hematology laboratory\n 2.General laboratory\n");
-                lab = sc.nextLine();
-            }
+            //System.out.println("Select the laboratory:\n 1.Hematology laboratory\n 2.General laboratory\n");
+            //lab = sc.nextLine();
             System.out.println("\tRemoved\n"+control.dischargeLab(lab));
         }
     }
@@ -267,8 +264,10 @@ public class Main {
             System.out.println("There are not patients in the hospital");
         } else {
             updateTempPatient();
-            if(tempPatient != null){
+            if(tempPatient != null && !tempPatient.isInQueue()){
                 control.entryLab(tempPatient, lab);
+            }else if (tempPatient.isInQueue()){
+                System.out.println("The patient is already in a queue");
             }
         }
     }
