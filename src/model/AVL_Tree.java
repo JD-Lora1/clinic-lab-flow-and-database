@@ -205,7 +205,7 @@ public class AVL_Tree {
         return current;
     }
 
-    int getBalance(Node N)
+    public int getBalance(Node N)
     {
         if (N == null)
             return 0;
