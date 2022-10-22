@@ -17,7 +17,7 @@ public class Control {
     public AVL_Tree avlTree; //Binary tree to save patients info
     public Gson gson; //To use Json
     private Scanner sc = new Scanner(System.in);
-    public StackUndo<Node, NodeQueue<Patient> >  undoHistory;
+    public StackUndo<Patient>  undoHistory;
     public MyQueue<Patient> priorityQueueHematology;
     public MyQueue<Patient> priorityQueueGeneral;
     public MyQueue<Patient> secondaryQueueHematology;
@@ -178,8 +178,8 @@ public class Control {
         if (new File(databasePath).exists()) {
             String json = readFile(databasePath);
             //Load the data on the AVL tree. BST
-            Node node = gson.fromJson(json, Node.class);
-            avlTree.setRoot(node);
+            NodeTree nodeTree = gson.fromJson(json, NodeTree.class);
+            avlTree.setRoot(nodeTree);
         }
     }
 
@@ -438,7 +438,7 @@ public class Control {
 
     public Patient findPatient(String id){
 
-        Node foundNode = avlTree.findPatient(id);
+        NodeTree foundNode = avlTree.findPatient(id);
         if (foundNode!=null){
             System.out.println("Found:");
             System.out.println(foundNode.getPatient().showData());
@@ -449,7 +449,7 @@ public class Control {
         }
     }
 
-    public Node addPatient(String name, String id, int age, boolean isPriority){
+    public Patient addPatient(String name, String id, int age, boolean isPriority){
         return avlTree.insert(new Patient(name,id,age,isPriority));
     }
 
@@ -466,29 +466,27 @@ public class Control {
     public void undo(){
         if (!undoHistory.isEmpty()) {
             NodeHistory lastChange = undoHistory.pop();
-            Node avlnode = (Node) lastChange.getNodeTvalue();
-            NodeQueue nodeQueue = (NodeQueue) lastChange.getNodeHvalue();
+            Patient patient = (Patient) lastChange.getNodeTvalue();
+            String option = lastChange.getOption();
             String actionT = lastChange.getActionT();
 
-            if (avlnode!=null){
+            if (option.equals("AVLtree")){
                 if (actionT.equals("Delete AVL-Node")){
-                    avlTree.insert(avlnode.getPatient());
+                    avlTree.insert(patient);
                 }else if(actionT.equals("Insert AVL-Node")){
-                    //TODO
-                    // Make delete method works with AVL trees
-                    avlTree.delete(avlnode.getPatient().getId());
+                    avlTree.delete(patient.getId());
                 }
             }
-            else if (nodeQueue!=null){
+            else if (option.equals("Queue")){
                 switch (actionT) {
-                    case "Delete Priority-Queue-Hematology" -> priorityQueueHematology.undoDequeue(nodeQueue);
+                    case "Delete Priority-Queue-Hematology" -> priorityQueueHematology.undoDequeue(patient);
                     case "Insert Priority-Queue-Hematology" -> priorityQueueHematology.undoEnqueue();
-                    case "Delete Secondary-Queue-Hematology" -> secondaryQueueHematology.undoDequeue(nodeQueue);
+                    case "Delete Secondary-Queue-Hematology" -> secondaryQueueHematology.undoDequeue(patient);
                     case "Insert Secondary-Queue-Hematology" -> secondaryQueueHematology.undoEnqueue();
 
-                    case "Delete Priority-Queue-General" -> priorityQueueGeneral.undoDequeue(nodeQueue);
+                    case "Delete Priority-Queue-General" -> priorityQueueGeneral.undoDequeue(patient);
                     case "Insert Priority-Queue-General" -> priorityQueueGeneral.undoEnqueue();
-                    case "Delete Secondary-Queue-General" -> secondaryQueueGeneral.undoDequeue(nodeQueue);
+                    case "Delete Secondary-Queue-General" -> secondaryQueueGeneral.undoDequeue(patient);
                     case "Insert Secondary-Queue-General" -> secondaryQueueGeneral.undoEnqueue();
                 }
 
@@ -502,8 +500,8 @@ public class Control {
         }
     }
 
-    public void addNodeHistory(Node avlNode , NodeQueue nodeQueue, String actionT){
-        undoHistory.push(avlNode, nodeQueue, actionT);
+    public void addNodeHistory(String option, Patient patient, String actionT){
+        undoHistory.push(option, patient, actionT);
     }
 
     public NodeQueue entryLab(Patient patient, String lab){
@@ -512,24 +510,24 @@ public class Control {
             if(patient.isPriority()){
                 priorityQueueHematology.enqueue(new NodeQueue(patient));
                 System.out.println("Added to the Hematology Priority Queue"+priorityQueueHematology.top().getValue().toString());
-                addNodeHistory(null, priorityQueueHematology.top() , "Insert Priority-Queue-Hematology");
+                addNodeHistory("Queue", patient , "Insert Priority-Queue-Hematology");
                 return priorityQueueHematology.top();
             }else{
                 secondaryQueueHematology.enqueue(new NodeQueue(patient));
                 System.out.println("Added to the Hematology Secondary Queue"+secondaryQueueHematology.top().toPrint());
-                addNodeHistory(null, secondaryQueueHematology.top() , "Insert Secondary-Queue-Hematology");
+                addNodeHistory("Queue", patient , "Insert Secondary-Queue-Hematology");
                 return secondaryQueueHematology.top();
             }
         }else{//General
             if(patient.isPriority()){
                 priorityQueueGeneral.enqueue(new NodeQueue(patient));
                 System.out.println("Added to the General Priority Queue"+priorityQueueGeneral.top().toPrint());
-                addNodeHistory(null, priorityQueueGeneral.top() , "Insert Priority-Queue-General");
+                addNodeHistory("Queue", patient, "Insert Priority-Queue-General");
                 return priorityQueueGeneral.top();
             }else{
                 secondaryQueueGeneral.enqueue(new NodeQueue(patient));
                 System.out.println("Added to the General Secondary Queue"+secondaryQueueGeneral.top().toPrint());
-                addNodeHistory(null, secondaryQueueGeneral.top() , "Insert Secondary-Queue-General");
+                addNodeHistory("Queue", patient, "Insert Secondary-Queue-General");
                 return secondaryQueueGeneral.top();
             }
         }
@@ -541,20 +539,20 @@ public class Control {
         if(lab.equals("1")){//Hematology
             if(!priorityQueueHematology.isEmpty()){
                 removed = priorityQueueHematology.top().toPrint();
-                addNodeHistory(null, priorityQueueHematology.dequeue() , "Delete Prioritary-Queue-Hematology");
+                addNodeHistory("Queue", priorityQueueHematology.dequeue(), "Delete Prioritary-Queue-Hematology");
             }else if(!secondaryQueueHematology.isEmpty()){
                 removed = secondaryQueueHematology.top().toPrint();
-                addNodeHistory(null, secondaryQueueHematology.dequeue() , "Delete Secondary-Queue-Hematology");
+                addNodeHistory("Queue", secondaryQueueHematology.dequeue() , "Delete Secondary-Queue-Hematology");
             }else {
                 System.out.println("The queue is empty");
             }
         }else{//General
             if(!priorityQueueGeneral.isEmpty()){
                 removed = priorityQueueGeneral.top().toPrint();
-                addNodeHistory(null, priorityQueueGeneral.dequeue() , "Delete Prioritary-Queue-General");
+                addNodeHistory("Queue", (Patient) priorityQueueGeneral.dequeue(), "Delete Prioritary-Queue-General");
             }else if(!secondaryQueueGeneral.isEmpty()){
                 removed = secondaryQueueGeneral.top().toPrint();
-                addNodeHistory(null, secondaryQueueGeneral.dequeue() , "Delete Secondary-Queue-General");
+                addNodeHistory("Queue", (Patient) secondaryQueueGeneral.dequeue() , "Delete Secondary-Queue-General");
             }else {
                 System.out.println("The queue is empty");
             }
@@ -562,6 +560,5 @@ public class Control {
 
         return removed;
     }
-
 
 }

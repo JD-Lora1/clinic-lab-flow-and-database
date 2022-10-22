@@ -5,15 +5,14 @@ public class Patient {
     private String id;
     private int age;
     private boolean isPriority;
+    private boolean isInQueue;
 
     public Patient(String name, String id,int age,boolean isPriority) {
         this.name = name;
         this.id = id;
         this.age=age;
         this.isPriority=isPriority;
-    }
-
-    public Patient(String name, String id, Object o) {
+        isInQueue = false;
     }
 
     public String getName() {
@@ -48,18 +47,23 @@ public class Patient {
         isPriority = priority;
     }
 
+    public boolean isInQueue() {
+        return isInQueue;
+    }
+
+    public void setInQueue(boolean inQueue) {
+        isInQueue = inQueue;
+    }
+
     public String showData(){
         return "ID: "+id+", Name: "+name;
     }
 
-    @Override
-    public String toString() {
-        return "Patient{" +
-                "name='" + name + '\'' +
-                ", id='" + id + '\'' +
-                ", age=" + age +
-                ", isPriority=" + isPriority +
-                '}';
+    public String toPrint() {
+        return  "ID:" + id +
+                ", Name:" + name  +
+                ", Age:" + age +
+                ", Priority atention:" + isPriority;
     }
 }
 

@@ -1,13 +1,10 @@
 package ui;
 
 import Comparators.CompareByID;
-import model.AVL_Tree;
-import model.Control;
-import model.Patient;
+import model.*;
 
 import java.io.File;
 import java.io.IOException;
-import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -22,7 +19,7 @@ public class Main {
     // Github{Backup, restore Backup}
     // Advanced options{Factory reset(clear data such as on dataBase-Path.txt, or set Windows OS by default)
 
-    private Scanner sc;
+    private static Scanner sc;
     private Control control;
 
     private String id;
@@ -51,41 +48,35 @@ public class Main {
     }
 
     public void select(String number, String exe){
-
-        switch(number){
+        switch (number) {
             case "1":
-                do{
-                    exe = dataBaseMenu();
-                    optionsDataBase(exe);
-                }while(!exe.equals("0"));
+                exe = dataBaseMenu();
+                optionsDataBase(exe);
                 break;
 
             case "2":
-                do{
-                    exe = menuHematologyUnit();
-                    optionsHematologyUnit(exe);
-                }while(!exe.equals("0"));
+                exe = menuHematologyUnit();
+                optionsHematologyUnit(exe);
                 break;
             case "3":
-                do{
-                    exe = menuGeneralUnit();
-                    optionsGeneralUnit(exe);
-                }while(!exe.equals("0"));
+                exe = menuGeneralUnit();
+                optionsGeneralUnit(exe);
                 break;
             case "4":
                 //Undo
                 control.undo();
                 control.writeJsonFile();
                 break;
-            case"0":
+            case "0":
                 control.writeJsonFile();
-                sc.close();
                 System.out.println("Bye!");
+                sc.close();
                 break;
             default:
                 System.out.println("\tTypo\nEnter a valid value");
                 break;
         }
+
     }
 
     public String menuHematologyUnit(){
@@ -144,7 +135,7 @@ public class Main {
     }
 
     public String dataBaseMenu(){
-        System.out.println("\n::::::::::::::::::::::::::::::::::\n\tDATA BASE MENU\n::::::::::::::::::::::::::::::::::\n(1) Search patient\n(2) Add patient\n(3) Discharge a patient\n(4) Monitor the status\n(5) Create a backup locally and to Github\n(6) Restore a backup of DataBase\n(7) Factory RESET PATH\n(8) Save\n(0) Back\n::::::::::::::::::::::::::::::::::");
+        System.out.println("\n::::::::::::::::::::::::::::::::::\n\tDATA BASE MENU\n::::::::::::::::::::::::::::::::::\n(1) Search patient\n(2) Add patient\n(3) Delete a patient\n(4) Monitor the status\n(5) Create a backup locally and to Github\n(6) Restore a backup of DataBase\n(7) Factory RESET PATH\n(8) Save\n(0) Back\n::::::::::::::::::::::::::::::::::");
         return sc.nextLine();
     }
 
@@ -161,10 +152,10 @@ public class Main {
                 System.out.print("Now, write the id: ");
 
                 do{
-                    id = readId(id);
+                    id = readId();
                 }while (id.equals(""));
 
-                System.out.println("Enter the age of the patient");
+                System.out.print("Enter the age of the patient: ");
                 int age = sc.nextInt();
                 boolean isPriority = false;
                 if(age>=50){
@@ -184,8 +175,7 @@ public class Main {
                             break;
                     }
                 }
-
-                control.addNodeHistory(control.addPatient(name,id, age, isPriority), null,"Insert AVL-Node");
+                control.addNodeHistory("AVLtree",control.addPatient(name,id, age, isPriority), "Insert AVL-Node");
                 //Serialize the data
                 control.writeJsonFile();
                 System.out.println("");
@@ -194,13 +184,17 @@ public class Main {
                 //Find it, then delete it
                 System.out.print("Write the id: ");
                 do{
-                    id = readId(id);
+                    id = readId();
                 }while (id.equals(""));
-                control.addNodeHistory(control.avlTree.delete(id), null,"Delete AVL-Node");
+                Patient out = control.avlTree.delete(id);
+                control.addNodeHistory( "AVLtree", out,"Delete AVL-Node");
 
                 //Serialize the data
                 control.writeJsonFile();
-                System.out.println("");
+                System.out.println(out == null?"Patient not found":"Patient: "+out.showData()+" deleted");
+                break;
+            case "4": //Print the DataBase
+                control.avlTree.inorder();
                 break;
 
             case "5": // Create a backup locally and to Github
@@ -237,6 +231,7 @@ public class Main {
             case "8": // Save (Serialize)
                 control.writeJsonFile();
                 System.out.println("Saved");
+                break;
 
             case"0":
                 System.out.println("Bye!");
@@ -244,22 +239,20 @@ public class Main {
 
             default:
                 System.out.println("\tTypo\nEnter a valid value");
+                break;
         }
     }
+
 
     public void dischargeAnyQueue(String lab){
         if(control.avlTree.getRoot() == null){
             System.out.println("There are not patients in the hospital");
         }else {
-            lab = "";
-            while (!lab.equals("1") && !lab.equals("2")) {
-                System.out.println("Select the laboratory:\n 1.Hematology laboratory\n 2.General laboratory\n");
-                lab = sc.nextLine();
-            }
+            //System.out.println("Select the laboratory:\n 1.Hematology laboratory\n 2.General laboratory\n");
+            //lab = sc.nextLine();
             System.out.println("\tRemoved\n"+control.dischargeLab(lab));
         }
     }
-
 
     public void patient2Queue(String lab){
 
@@ -267,8 +260,10 @@ public class Main {
             System.out.println("There are not patients in the hospital");
         } else {
             updateTempPatient();
-            if(tempPatient != null){
+            if(tempPatient != null && !tempPatient.isInQueue()){
                 control.entryLab(tempPatient, lab);
+            }else if (tempPatient.isInQueue()){
+                System.out.println("The patient is already in a queue");
             }
         }
     }
@@ -280,15 +275,16 @@ public class Main {
         }else{
             System.out.print("Please provide the id: ");
             do{
-                id = readId(id);
+                id = readId();
             }while (id.equals(""));
             System.out.println("");
             return control.findPatient(id);
         }
     }
 
-    public String readId(String id){
+    public String readId(){
         //Guarantee id is a number
+        String id="";
         Long longId;
         try {
             longId = Long.parseLong(sc.nextLine());

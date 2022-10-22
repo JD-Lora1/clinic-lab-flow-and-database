@@ -6,91 +6,226 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class MyQueueTest {
 
-    private MyQueue priority;
-    private MyQueue secondary;
+    private MyQueue queue;
 
-    public MyQueue setup1(){
-        MyQueue priority = new MyQueue();
-        priority.enqueue(new NodeQueue<>(new Patient("Juan", "123456", 65, true)));
-        priority.enqueue(new NodeQueue<>(new Patient("Juan", "234567", 65, true)));
-        priority.enqueue(new NodeQueue<>(new Patient("Juan", "345678", 65, true)));
-        priority.enqueue(new NodeQueue<>(new Patient("Juan", "456789", 65, true)));
-
-        return priority;
+    public void setup0(){
+        queue = new MyQueue();
     }
 
-    public MyQueue setup2(){
-        MyQueue secondary = new MyQueue();
-        secondary.enqueue(new NodeQueue<>(new Patient("Otro Juan", "123456", 65, false)));
-        secondary.enqueue(new NodeQueue<>(new Patient("Juan", "234567", 65, false)));
-        secondary.enqueue(new NodeQueue<>(new Patient("Juan", "456789", 65, false)));
-
-        return secondary;
+    public void setup1(){
+        queue.enqueue(new NodeQueue<>(new Patient("Jeison", "123456", 53, true)));
+        queue.enqueue(new NodeQueue<>(new Patient("Santi", "234567", 39, true)));
+        queue.enqueue(new NodeQueue<>(new Patient("Juandi", "345678", 15, true)));
+        queue.enqueue(new NodeQueue<>(new Patient("Jeimy", "456789", 24, true)));
     }
 
-    public MyQueue setup3(){
-        MyQueue queueTest = new MyQueue();
-        return queueTest;
+    public void setup2(){
+        queue.enqueue(new NodeQueue<>(new Patient("Aaron Arango", "1002821688", 12, true)));
+        queue.enqueue(new NodeQueue<>(new Patient("Belixa Baena", "34578457", 21, true)));
+        queue.enqueue(new NodeQueue<>(new Patient("Cristhian Crown", "1005489694", 34, true)));
+    }
+
+    public void setup3(){
+        queue.enqueue(new NodeQueue<>(new Patient("Andrea Castro", "1038246388", 14, true)));
+        queue.dequeue();
     }
 
     @Test
-    public void enqueueTest(){
-        priority = setup3();
-        NodeQueue patient = new NodeQueue<Patient>(new Patient("Otro Juan", "123456", 65, false));
-        priority.enqueue(patient);
+    public void enqueueTest1(){
+        //Simple enqueue
+        setup0();
+        NodeQueue<Patient> node = new NodeQueue<>(new Patient("Andres Arco", "90996", 51, false));
+        NodeQueue<Patient> node2 = new NodeQueue<>(new Patient("Benito B", "315444", 53, false));
+        queue.enqueue(node);
+        queue.enqueue(node2);
+        Patient p =  (Patient) queue.top().getValue();
 
-        assertEquals(patient, priority.top());
+        assertEquals(node.getValue().getName(), p.getName());
     }
 
     @Test
-    public void enqueueSecondTest(){
-        secondary = setup3();
-        priority = setup3();
+    public void enqueueTest2(){
+        //Todo
+        // Allow to insert the patient just once in a queue
+        setup0();
+        NodeQueue<Patient> node = new NodeQueue<>(new Patient("Otro Juan", "123456", 65, false));
+        queue.enqueue(node);
+        queue.enqueue(node);
+        queue.enqueue(node);
+        queue.enqueue(node);
+        queue.dequeue();
 
-        NodeQueue patient = new NodeQueue<Patient>(new Patient("Otro Juan", "123456", 65, false));
-        priority.enqueue(patient);
-        secondary.enqueue(patient);
-
-        assertEquals(priority.top(), secondary.top());
+        assertTrue(queue.isEmpty());
     }
 
     @Test
-    public void dequeuePriorityTest(){
-        priority = setup1();
-        priority.dequeue();
-        priority.dequeue();
+    public void enqueueTest3(){
+        //Todo
+        // Don't allow to insert the patient in two differents queues at the same time
+        MyQueue<Patient> otherQueue = new MyQueue<>();
+        setup0(); //queue
 
-        assertEquals(priority.top().getValue(), priority.dequeue());
+        NodeQueue<Patient> node = new NodeQueue<>(new Patient("Diana Diaz", "7329534", 22, false));
+        queue.enqueue(node);
+        otherQueue.enqueue(node);
+
+        assertTrue(otherQueue.isEmpty());
+        assertFalse(queue.isEmpty());
+    }
+
+
+    @Test
+    public void dequeueTest1(){
+        //Todo
+        // When is empty
+        setup0();
+        queue.dequeue();
+
+        assertEquals(queue.top(), null);
     }
 
     @Test
-    public  void dequeueSecondaryTest(){
-        secondary = setup2();
-        secondary.dequeue();
-        secondary.dequeue();
+    public  void dequeueTest2(){
+        // Simple dequeue
+        setup0();
+        setup1();
+        queue.dequeue();
+        queue.dequeue();
+        Patient patient = (Patient) queue.top().getValue();
 
-        assertEquals(secondary.top().getValue(), secondary.dequeue());
+        assertEquals(patient.getName(), "Juandi");
+    }
+
+    @Test
+    public  void dequeueTest3(){
+        setup0();
+        queue.enqueue(new NodeQueue<Patient>(new Patient("Prueba", "111",2,true)));
+        queue.dequeue();
+        setup1();
+
+        assertEquals(((Patient)(queue.top().getValue())).getName(), queue.dequeue().getName());
+    }
+
+    //Undo
+
+    @Test
+    public void undoEnqueueTest1(){
+        setup0();
+        NodeQueue<Patient> node = new NodeQueue<>(new Patient("Andres Arco", "90996", 51, false));
+        queue.enqueue(node);
+        queue.undoEnqueue();
+
+        assertTrue(queue.isEmpty());
+    }
+
+    @Test
+    public void undoEnqueueTest2(){
+        setup0();
+        setup2();
+        NodeQueue<Patient> node = new NodeQueue<>(new Patient("Andres Arco", "90996", 51, false));
+        queue.enqueue(node);
+        queue.undoEnqueue();
+
+        assertEquals(((Patient)(queue.top().getValue())).getName(), "Aaron Arango");
+    }
+
+    @Test
+    public void undoEnqueueTest3(){
+        // Allows to enque after a undo
+        setup0();
+        NodeQueue<Patient> node = new NodeQueue<>(new Patient("Andres Arco", "90996", 51, false));
+        queue.enqueue(node);
+        queue.undoEnqueue();
+        queue.enqueue(node);
+
+        assertEquals(((Patient)(queue.top().getValue())).getName(), "Andres Arco");
+    }
+
+    @Test
+    public void undoEnqueueTest4(){
+        // Undo several times
+        setup0();
+        NodeQueue<Patient> node = new NodeQueue<>(new Patient("Andres Arco", "90996", 51, false));
+        queue.enqueue(node);
+        queue.undoEnqueue();
+        queue.enqueue(node);
+        queue.undoEnqueue();
+        queue.undoEnqueue();
+        queue.undoEnqueue();
+
+        assertTrue(queue.isEmpty());
+    }
+
+    @Test
+    public void undoEnqueueTest5(){
+        // Undo with previous actions
+        setup0();
+        queue.undoEnqueue();
+        NodeQueue<Patient> node = new NodeQueue<>(new Patient("Andres Arco", "90996", 51, false));
+        queue.enqueue(node);
+
+        assertTrue(!queue.isEmpty());
+    }
+
+    @Test
+    public void undoDequeueTest1(){
+        // Undo
+        setup0();
+        setup1();
+        Patient p1 = queue.dequeue();
+        assertFalse(p1.isInQueue());
+        Patient p2 = queue.dequeue();
+        queue.undoDequeue(p1);
+
+        assertTrue(p1.isInQueue());
+    }
+
+    @Test
+    public void undoDequeueTest2(){
+        // Undo, with the same node, can't be
+        setup0();
+        NodeQueue<Patient> node = new NodeQueue<>(new Patient("Andres Arco", "90996", 51, false));
+        queue.dequeue();
+        queue.undoDequeue(node.getValue());
+        queue.undoDequeue(node.getValue());
+        queue.undoDequeue(node.getValue());
+        queue.undoDequeue(node.getValue());
+        queue.dequeue();
+
+        assertTrue(queue.isEmpty());
+    }
+    @Test
+    public void undoDequeueTest3(){
+        // Undo with previous actions
+        setup0();
+        NodeQueue<Patient> node = new NodeQueue<>(new Patient("Andres Arco", "90996", 51, false));
+        queue.undoDequeue(node.getValue());
+        queue.enqueue(node);
+
+        assertTrue(!queue.isEmpty());
     }
 
     @Test
     public void isEmptyTest(){
-        priority = setup1();
-        assertEquals(priority.isEmpty(), false);
+        setup0();
+        setup1();
+        assertEquals(queue.isEmpty(), false);
     }
 
     @Test
     public void isEmptyTest2(){
-        secondary = setup3();
-        assertEquals(secondary.isEmpty(), true);
+        setup0();
+        assertEquals(queue.isEmpty(), true);
     }
 
     @Test
     public void isEmptyTest3(){
-        secondary = setup2();
-        secondary.dequeue();
-        secondary.dequeue();
-        secondary.dequeue();
-        secondary.dequeue();
-        assertEquals(secondary.isEmpty(), true);
+        setup0();
+        setup2();
+        queue.dequeue();
+        queue.dequeue();
+        queue.dequeue();
+        queue.dequeue();
+        assertEquals(queue.isEmpty(), true);
     }
 }

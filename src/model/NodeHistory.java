@@ -1,25 +1,24 @@
 package model;
 
-public class NodeHistory <T, H>{
-    private NodeHistory<T, H> next;
+public class NodeHistory <T> {
+    private NodeHistory<T> next;
     private T nodeTvalue;
-    private H nodeHvalue;
+    private String option;
     private String actionT;
 
     public NodeHistory() {
     }
 
-    public NodeHistory(T nodeTvalue, H nodeHvalue, String actionT) {
+    public NodeHistory(String option, T nodeTvalue, String actionT) {
         this.nodeTvalue = nodeTvalue;
-        this.nodeHvalue = nodeHvalue;
         this.actionT = actionT;
     }
 
-    public NodeHistory<T,H> getNext() {
+    public NodeHistory<T> getNext() {
         return next;
     }
 
-    public void setNext(NodeHistory<T, H> next) {
+    public void setNext(NodeHistory<T> next) {
         this.next = next;
     }
 
@@ -31,12 +30,12 @@ public class NodeHistory <T, H>{
         this.nodeTvalue = nodeTvalue;
     }
 
-    public H getNodeHvalue() {
-        return nodeHvalue;
+    public String getOption() {
+        return option;
     }
 
-    public void setNodeHvalue(H nodeHvalue) {
-        this.nodeHvalue = nodeHvalue;
+    public void setOption(String option) {
+        this.option = option;
     }
 
     public String getActionT() {

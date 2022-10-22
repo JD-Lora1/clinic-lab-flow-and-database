@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class StackUndoTest {
 
-    private StackUndo<Node, NodeQueue> stackUndo;
+    private StackUndo<Patient> stackUndo;
 
     public void setup1(){
         stackUndo = new StackUndo<>();
@@ -14,23 +14,23 @@ class StackUndoTest {
 
     public void setup2(){
         setup1();
-        stackUndo.push( new Node(new Patient("PatientFirst","0", 1, true)), null,"Insert AVL-Node");
-        stackUndo.push( new Node(new Patient("patientLast","2", 2, false)), null,"Insert AVL-Node");
+        stackUndo.push( "AVLtree",new Patient("PatientFirst","0", 1, true),"Insert AVL-Node");
+        stackUndo.push( "AVLtree", new Patient("patientLast","2", 2, false),"Insert AVL-Node");
     }
 
     @Test
     void push() {
         setup2();
-        stackUndo.push( new Node(new Patient("lastOne","3",2, false)), null,"Insert AVL-Node");
-        Node node = (Node) stackUndo.peek().getNodeTvalue();
-        assertEquals(node.getPatient().getId(), "3");
+        stackUndo.push( "AVLtree", new Patient("lastOne","3",2, false), "Insert AVL-Node");
+        NodeTree nodeTree = (NodeTree) stackUndo.peek().getNodeTvalue();
+        assertEquals(nodeTree.getPatient().getId(), "3");
     }
 
     @Test
     void pop() {
         setup2();
         assertEquals(stackUndo.peek(), stackUndo.pop());
-        Node nodet = (Node) stackUndo.peek().getNodeTvalue();
+        NodeTree nodet = (NodeTree) stackUndo.peek().getNodeTvalue();
         assertEquals("PatientFirst", nodet.getPatient().getName());
     }
 
