@@ -11,7 +11,7 @@ If file doesn't exist then ask for that filepath where you want to store the Pat
 </ul>
 Finally, in both cases writes the path of that folder in the file appState/dataBase-Path.txt<br>
 
-When the file is empty the program asks user whether them want to restore a backup (Stored on  <a href="https://github.com/JD-Lora1/Clinic-DataBase-Backup)">JuanLoraRepo</a>)
+When the file is empty the program asks user whether them want to restore a backup (Stored on  <a href="https://github.com/JD-Lora1/Clinic-DataBase-Backup">JuanLoraRepo</a> )
 <ul>
 <li>If the answer is 'Y'/Yes does a git pull (with the last commit)<br>
 Then if you want to restore another backup different from last. Shows commits, asks which choose, and restore it<br>

@@ -11,11 +11,11 @@ public class AVL_Tree implements ITree{
         this.comparator = comparator;
     }
 
-    public Patient insert(Patient patient){
+    public NodeTree insert(Patient patient){
         root = insert(patient, root);
         //TODO
         // return the patient just when this one is added. Dont return when its repeated
-        return patient;
+        return root;
     }
     private NodeTree insert(Patient patient, NodeTree nodeTree) {
         if (nodeTree == null) {
@@ -105,7 +105,7 @@ public class AVL_Tree implements ITree{
         return p;
     }
 
-    private NodeTree deleteNode(String goal, NodeTree current){
+    private NodeTree delete(String goal, NodeTree current){
         if(current == null){
             return null;
         }
@@ -141,7 +141,6 @@ public class AVL_Tree implements ITree{
                 return current;
             }
 
-
         }else if(goal.compareTo(current.getPatient().getId()) < 0){
             NodeTree subArbolIzquierdo = delete(goal, current.left);
             return current.left = subArbolIzquierdo;
@@ -150,114 +149,6 @@ public class AVL_Tree implements ITree{
             return current.right = (subArbolDerecho);
         }
     }
-
-    private NodeTree delete(String goal, NodeTree current){
-        // If the tree had only one node then return
-        if (current == null)
-            return null;
-
-        // STEP 2: UPDATE HEIGHT OF THE CURRENT NODE
-        current.height = Math.max(getHeight(current.left), getHeight(current.right)) + 1;
-
-        // STEP 3: GET THE BALANCE FACTOR OF THIS NODE (to check whether this node became unbalanced)
-        int balance = getBalance(current);
-
-        // If this node becomes unbalanced, then there are 4 cases
-        // Left Left Case
-        if (balance > 1 && getBalance(current.left) >= 0)
-            return rotateWithRightChild(current);
-
-        // Left Right Case
-        if (balance > 1 && getBalance(current.left) < 0)
-            //current.left = leftRotate(current.left);
-            return doubleWithRightChild(current);
-
-
-        // Right Right Case
-        if (balance < -1 && getBalance(current.right) <= 0)
-            return rotateWithLeftChild(current);
-
-        // Right Left Case
-        if (balance < -1 && getBalance(current.right) > 0)
-            //current.right = rightRotate(current.right);
-            return doubleWithLeftChild(current);
-
-        return current;
-    }
-
-    /*private NodeTree delete(String goal, NodeTree current) {
-        // First, delete as a standard BST
-        if (current == null)
-            return null;
-
-        // smaller
-        if (goal.compareTo(current.getPatient().getId()) < 0)
-            current.left = delete(goal, current.left);
-        //bigger
-        else if (goal.compareTo(current.getPatient().getId()) > 0)
-            current.right = delete(goal, current.right);
-        //goal found
-        else {
-            // node with only one child or no child
-            if ((current.left == null) || (current.right == null)) {
-                NodeTree temp = null;
-                if (current.left == null)
-                    temp = current.right;
-                else
-                    temp = current.left;
-
-                // No children
-                if (temp == null) {
-                    temp = current;
-                    current = null;
-                }
-                else // One child
-                    current = temp; // Copy the contents of the non-empty child
-            }
-            else {
-                // node with two children
-                NodeTree temp = findMinimum(current.right);
-
-                // Copy the inorder successor's data to this node
-                current.getPatient().setId(temp.getPatient().getId());
-
-                // Delete the inorder successor
-                current.right = delete(temp.getPatient().getId(), current.right);
-            }
-        }
-
-        // If the tree had only one node then return
-        if (current == null)
-            return null;
-
-        // STEP 2: UPDATE HEIGHT OF THE CURRENT NODE
-        current.height = Math.max(getHeight(current.left), getHeight(current.right)) + 1;
-
-        // STEP 3: GET THE BALANCE FACTOR OF THIS NODE (to check whether this node became unbalanced)
-        int balance = getBalance(current);
-
-        // If this node becomes unbalanced, then there are 4 cases
-        // Left Left Case
-        if (balance > 1 && getBalance(current.left) >= 0)
-            return rotateWithRightChild(current);
-
-        // Left Right Case
-        if (balance > 1 && getBalance(current.left) < 0)
-            //current.left = leftRotate(current.left);
-            return doubleWithRightChild(current);
-
-
-        // Right Right Case
-        if (balance < -1 && getBalance(current.right) <= 0)
-            return rotateWithLeftChild(current);
-
-        // Right Left Case
-        if (balance < -1 && getBalance(current.right) > 0)
-            //current.right = rightRotate(current.right);
-            return doubleWithLeftChild(current);
-
-        return current;
-    }*/
 
     public void inorder(){
         inorder(root);

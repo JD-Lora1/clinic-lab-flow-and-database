@@ -175,7 +175,9 @@ public class Main {
                             break;
                     }
                 }
-                control.addNodeHistory("AVLtree",control.addPatient(name,id, age, isPriority), "Insert AVL-Node");
+                //Todo
+                // Change return patient
+                control.addNodeHistory("AVLtree",control.addPatient(name,id, age, isPriority).getPatient(), "Insert AVL-Node");
                 //Serialize the data
                 control.writeJsonFile();
                 System.out.println("");
@@ -191,7 +193,7 @@ public class Main {
 
                 //Serialize the data
                 control.writeJsonFile();
-                System.out.println(out == null?"Patient not found":"Patient: "+out.showData()+" deleted");
+                System.out.println(out != null?"Patient not found":"Patient deleted");
                 break;
             case "4": //Print the DataBase
                 control.avlTree.inorder();

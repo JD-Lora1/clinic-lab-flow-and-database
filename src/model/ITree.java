@@ -3,7 +3,7 @@ package model;
 
 public interface ITree{
 
-    public Patient insert(Patient patient);
+    public NodeTree insert(Patient patient);
 
     private NodeTree insert(Patient patient, NodeTree nodeTree) {
         return null;
@@ -38,7 +38,6 @@ public interface ITree{
     private void inorder(NodeTree current) {
 
     }
-
     public int getBalance(NodeTree N);
     public NodeTree findMinimum(NodeTree current);
     public  NodeTree getRoot() ;

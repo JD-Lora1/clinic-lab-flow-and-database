@@ -449,7 +449,7 @@ public class Control {
         }
     }
 
-    public Patient addPatient(String name, String id, int age, boolean isPriority){
+    public NodeTree addPatient(String name, String id, int age, boolean isPriority){
         return avlTree.insert(new Patient(name,id,age,isPriority));
     }
 
@@ -472,7 +472,7 @@ public class Control {
 
             if (option.equals("AVLtree")){
                 if (actionT.equals("Delete AVL-Node")){
-                    avlTree.insert(patient);
+                    avlTree.setRoot(new NodeTree(patient));
                 }else if(actionT.equals("Insert AVL-Node")){
                     avlTree.delete(patient.getId());
                 }
