@@ -48,39 +48,33 @@ public class Main {
     }
 
     public void select(String number, String exe){
-        while (!exe.equals("0")) {
-            switch (number) {
-                case "1":
-                    exe = dataBaseMenu();
-                    optionsDataBase(exe);
-                    break;
+        switch (number) {
+            case "1":
+                exe = dataBaseMenu();
+                optionsDataBase(exe);
+                break;
 
-                case "2":
-                    exe = menuHematologyUnit();
-                    optionsHematologyUnit(exe);
-                    break;
-                case "3":
-                    exe = menuGeneralUnit();
-                    optionsGeneralUnit(exe);
-                    break;
-                case "4":
-                    //Undo
-                    control.undo();
-                    control.writeJsonFile();
-                    break;
-                case "0":
-                    control.writeJsonFile();
-                    System.out.println("Bye!");
-                    sc.close();
-                    break;
-                default:
-                    System.out.println("\tTypo\nEnter a valid value");
-                    break;
-            }
-            if (!exe.equals("0")) {
-                System.out.println("\t* Press enter to continue");
-                sc.nextLine();
-            }
+            case "2":
+                exe = menuHematologyUnit();
+                optionsHematologyUnit(exe);
+                break;
+            case "3":
+                exe = menuGeneralUnit();
+                optionsGeneralUnit(exe);
+                break;
+            case "4":
+                //Undo
+                control.undo();
+                control.writeJsonFile();
+                break;
+            case "0":
+                control.writeJsonFile();
+                System.out.println("Bye!");
+                sc.close();
+                break;
+            default:
+                System.out.println("\tTypo\nEnter a valid value");
+                break;
         }
 
     }
@@ -136,14 +130,12 @@ public class Main {
     }
 
     public String menuGeneralUnit(){
-        System.out.print("\t* Press enter to continue");
-        sc.nextLine();
         System.out.println("\n::::::::::::::::::::::::::::::::::\n\tGENERAL UNIT\n::::::::::::::::::::::::::::::::::\n(1) Admit a patient\n(2) Discharge a patient\n(3) Monitor the status\n(0) Back\n::::::::::::::::::::::::::::::::::");
         return sc.nextLine();
     }
 
     public String dataBaseMenu(){
-        System.out.println("\n::::::::::::::::::::::::::::::::::\n\tDATA BASE MENU\n::::::::::::::::::::::::::::::::::\n(1) Search patient\n(2) Add patient\n(3) Discharge a patient\n(4) Monitor the status\n(5) Create a backup locally and to Github\n(6) Restore a backup of DataBase\n(7) Factory RESET PATH\n(8) Save\n(0) Back\n::::::::::::::::::::::::::::::::::");
+        System.out.println("\n::::::::::::::::::::::::::::::::::\n\tDATA BASE MENU\n::::::::::::::::::::::::::::::::::\n(1) Search patient\n(2) Add patient\n(3) Delete a patient\n(4) Monitor the status\n(5) Create a backup locally and to Github\n(6) Restore a backup of DataBase\n(7) Factory RESET PATH\n(8) Save\n(0) Back\n::::::::::::::::::::::::::::::::::");
         return sc.nextLine();
     }
 
@@ -162,7 +154,6 @@ public class Main {
                 do{
                     id = readId();
                 }while (id.equals(""));
-                System.out.println("ID:  "+id);
 
                 System.out.print("Enter the age of the patient: ");
                 int age = sc.nextInt();
@@ -184,8 +175,6 @@ public class Main {
                             break;
                     }
                 }
-                id = "";
-
                 control.addNodeHistory("AVLtree",control.addPatient(name,id, age, isPriority), "Insert AVL-Node");
                 //Serialize the data
                 control.writeJsonFile();
@@ -199,7 +188,6 @@ public class Main {
                 }while (id.equals(""));
                 Patient out = control.avlTree.delete(id);
                 control.addNodeHistory( "AVLtree", out,"Delete AVL-Node");
-                id = "";
 
                 //Serialize the data
                 control.writeJsonFile();
@@ -252,11 +240,6 @@ public class Main {
             default:
                 System.out.println("\tTypo\nEnter a valid value");
                 break;
-        }
-
-        if (!exe.equals("0")){
-            System.out.print("\t* Press enter to continue");
-            sc.nextLine();
         }
     }
 

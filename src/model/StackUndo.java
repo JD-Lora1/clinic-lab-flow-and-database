@@ -18,6 +18,7 @@ public class StackUndo <T> implements IStack<T> {
             head = current;
             current.setNodeTvalue(elementT);
             current.setActionT(actionT);
+            current.setOption(option);
         }
     }
 

@@ -2,7 +2,7 @@ package model;
 
 import java.util.Comparator;
 
-public class AVL_Tree {
+public class AVL_Tree implements ITree{
 
     private NodeTree root;
     private Comparator comparator;
@@ -95,20 +95,107 @@ public class AVL_Tree {
         }
     }
     public Patient delete(String id){
-        return deleteNode(id, root).getPatient();
+        root = delete(id, root);
+        Patient p;
+        if (root != null){
+            p = root.getPatient();
+        }else {
+            p = null;
+        }
+        return p;
     }
 
-    private NodeTree deleteNode(String goal, NodeTree current) {
+    private NodeTree deleteNode(String goal, NodeTree current){
+        if(current == null){
+            return null;
+        }
+        if(current.getPatient().getId().equals(goal)){
+            //1. Nodo Hoja
+            if(current.left == null && current.right == null){
+                if(current == root){
+                    root = null;
+                }
+                return null;
+            }
+            //2. Nodo solo hijo izquierdo
+            else if (current.right == null){
+                if(current == root){
+                    root = current.left;
+                }
+                return current.left;
+            }
+            //3. Nodo solo hijo derecho
+            else if(current.left == null){
+                if(current == root){
+                    root = current.right;
+                }
+                return current.right;
+            }
+            //4. Nodo con dos hijos
+            else{
+                NodeTree min = findMinimum(current.right);
+                //Transferencia de valores, NUNCA de conexiones
+                current.getPatient().setId(min.getPatient().getId());
+                //Hacer eliminación a partir de la derecha
+                current.right =  delete(min.getPatient().getId(), current.right) ;
+                return current;
+            }
+
+
+        }else if(goal.compareTo(current.getPatient().getId()) < 0){
+            NodeTree subArbolIzquierdo = delete(goal, current.left);
+            return current.left = subArbolIzquierdo;
+        }else{
+            NodeTree subArbolDerecho = delete(goal, current.right);
+            return current.right = (subArbolDerecho);
+        }
+    }
+
+    private NodeTree delete(String goal, NodeTree current){
+        // If the tree had only one node then return
+        if (current == null)
+            return null;
+
+        // STEP 2: UPDATE HEIGHT OF THE CURRENT NODE
+        current.height = Math.max(getHeight(current.left), getHeight(current.right)) + 1;
+
+        // STEP 3: GET THE BALANCE FACTOR OF THIS NODE (to check whether this node became unbalanced)
+        int balance = getBalance(current);
+
+        // If this node becomes unbalanced, then there are 4 cases
+        // Left Left Case
+        if (balance > 1 && getBalance(current.left) >= 0)
+            return rotateWithRightChild(current);
+
+        // Left Right Case
+        if (balance > 1 && getBalance(current.left) < 0)
+            //current.left = leftRotate(current.left);
+            return doubleWithRightChild(current);
+
+
+        // Right Right Case
+        if (balance < -1 && getBalance(current.right) <= 0)
+            return rotateWithLeftChild(current);
+
+        // Right Left Case
+        if (balance < -1 && getBalance(current.right) > 0)
+            //current.right = rightRotate(current.right);
+            return doubleWithLeftChild(current);
+
+        return current;
+    }
+
+    /*private NodeTree delete(String goal, NodeTree current) {
         // First, delete as a standard BST
         if (current == null)
             return null;
 
         // smaller
         if (goal.compareTo(current.getPatient().getId()) < 0)
-            current = deleteNode(goal, current.left);
+            current.left = delete(goal, current.left);
         //bigger
         else if (goal.compareTo(current.getPatient().getId()) > 0)
-            current = deleteNode(goal, current.right);
+            current.right = delete(goal, current.right);
         //goal found
         else {
             // node with only one child or no child
@@ -135,7 +222,7 @@ public class AVL_Tree {
                 current.getPatient().setId(temp.getPatient().getId());
 
                 // Delete the inorder successor
-                current.right = deleteNode(temp.getPatient().getId(), current.right);
+                current.right = delete(temp.getPatient().getId(), current.right);
             }
         }
 
@@ -170,7 +257,7 @@ public class AVL_Tree {
             return doubleWithLeftChild(current);
 
         return current;
-    }
+    }*/
 
     public void inorder(){
         inorder(root);
@@ -184,8 +271,7 @@ public class AVL_Tree {
         inorder(current.left);
     }
 
-    int getBalance(NodeTree N)
-    {
+    public int getBalance(NodeTree N) {
         if (N == null)
             return 0;
         return getHeight(N.left) - getHeight(N.right);
